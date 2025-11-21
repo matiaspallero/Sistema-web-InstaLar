@@ -34,11 +34,6 @@ function TecnicoCard({ tecnico, onEdit, onDelete }) {
           <p className="text-sm">{tecnico.email}</p>
         </div>
 
-        <div className="flex items-center gap-3 text-gray-700">
-          <FaStar className="text-yellow-500" />
-          <p className="text-sm font-semibold">{tecnico.calificacion} / 5.0</p>
-        </div>
-
         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 text-orange-500 mb-1">

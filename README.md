@@ -1,4 +1,5 @@
-<MI-STACK-PARA-ESTE-PROYECTO>
+<-- MI-STACK-PARA-ESTE-PROYECTO -->
+
     <Backend>
 - Node.js + Express
 - Supabase (PostgreSQL)

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaUsers, FaTools, FaCheckCircle, FaClock } from 'react-icons/fa';
+import { api } from '../services/api';
 
 function Dashboard() {
   const [stats, setStats] = useState({
@@ -10,76 +11,78 @@ function Dashboard() {
   });
 
   const [serviciosRecientes, setServiciosRecientes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simular carga de datos
-    setStats({
-      totalClientes: 45,
-      serviciosActivos: 12,
-      serviciosCompletados: 128,
-      serviciosPendientes: 8
-    });
-
-    setServiciosRecientes([
-      {
-        id: 1,
-        cliente: 'Empresa ABC',
-        servicio: 'Mantenimiento Preventivo',
-        tecnico: 'Juan Pérez',
-        estado: 'completado',
-        fecha: '13/11/2024'
-      },
-      {
-        id: 2,
-        cliente: 'Hotel XYZ',
-        servicio: 'Reparación',
-        tecnico: 'María García',
-        estado: 'en-proceso',
-        fecha: '14/11/2024'
-      },
-      {
-        id: 3,
-        cliente: 'Oficinas Central',
-        servicio: 'Instalación',
-        tecnico: 'Carlos López',
-        estado: 'pendiente',
-        fecha: '15/11/2024'
-      }
-    ]);
+    cargarDatos();
   }, []);
+
+  const cargarDatos = async () => {
+    try {
+      setLoading(true);
+
+      // Obtener todos los datos necesarios
+      const [clientes, servicios] = await Promise.all([
+        api.clientes.getAll(),
+        api.servicios.getAll()
+      ]);
+
+      // Calcular estadísticas
+      const serviciosActivos = servicios.filter(s => s.estado === 'en-proceso').length;
+      const serviciosCompletados = servicios.filter(s => s.estado === 'completado').length;
+      const serviciosPendientes = servicios.filter(s => s.estado === 'pendiente').length;
+
+      setStats({
+        totalClientes: clientes.length,
+        serviciosActivos,
+        serviciosCompletados,
+        serviciosPendientes
+      });
+
+      // Obtener los 5 servicios más recientes
+      const serviciosFormateados = servicios
+        .slice(0, 5)
+        .map(servicio => ({
+          id: servicio.id,
+          cliente: servicio.clientes?.nombre || 'Sin cliente',
+          servicio: servicio.tipo,
+          tecnico: servicio.tecnicos?.nombre || 'Sin asignar',
+          estado: servicio.estado,
+          fecha: new Date(servicio.fecha).toLocaleDateString('es-ES')
+        }));
+
+      setServiciosRecientes(serviciosFormateados);
+    } catch (error) {
+      console.error('Error cargando datos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const statCards = [
     {
       title: 'Clientes Totales',
       value: stats.totalClientes,
       icon: FaUsers,
-      gradient: 'from-purple-500 to-purple-700',
-      bgColor: 'bg-purple-500',
-      iconBg: 'bg-purple-600'
+      gradient: 'from-purple-500 to-purple-700'
     },
     {
       title: 'Servicios Activos',
       value: stats.serviciosActivos,
       icon: FaTools,
-      gradient: 'from-pink-500 to-red-500',
-      bgColor: 'bg-pink-500',
-      iconBg: 'bg-pink-600'
+      gradient: 'from-pink-500 to-red-500'
     },
     {
       title: 'Completados',
       value: stats.serviciosCompletados,
       icon: FaCheckCircle,
-      gradient: 'from-blue-500 to-cyan-500',
-      bgColor: 'bg-blue-500',
-      iconBg: 'bg-blue-600'
+      gradient: 'from-blue-500 to-cyan-500'
     },
     {
       title: 'Pendientes',
       value: stats.serviciosPendientes,
       icon: FaClock,
-      gradient: 'from-yellow-500 to-orange-500',
-      bgColor: 'bg-yellow-500',
-      iconBg: 'bg-yellow-600'
+      gradient: 'from-yellow-500 to-orange-500'
     }
   ];
 
@@ -101,9 +104,18 @@ function Dashboard() {
     return textos[estado] || estado;
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 className="text-3xl font-bold text-gray-800 mb-8">Panel de Control</h2>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
@@ -117,7 +129,7 @@ function Dashboard() {
                   <p className="text-sm opacity-90 mb-2">{stat.title}</p>
                   <h3 className="text-4xl font-bold">{stat.value}</h3>
                 </div>
-                <div className="bg-white bg-opacity-20 p-4 rounded-full backdrop-blur-sm">
+                <div className="bg-opacity-20 p-4 rounded-full backdrop-blur-sm">
                   <Icon className="text-3xl" />
                 </div>
               </div>
@@ -126,7 +138,6 @@ function Dashboard() {
         })}
       </div>
 
-      {/* Servicios Recientes */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="px-6 py-4 bg-linear-to-r from-blue-500 to-blue-600">
           <h3 className="text-xl font-semibold text-white">Servicios Recientes</h3>
@@ -159,18 +170,18 @@ function Dashboard() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {servicio.cliente}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">
                     {servicio.servicio}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">
                     {servicio.tecnico}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoBadge(servicio.estado)}`}>
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${getEstadoBadge(servicio.estado)}`}>
                       {getEstadoTexto(servicio.estado)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">
                     {servicio.fecha}
                   </td>
                 </tr>

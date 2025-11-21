@@ -23,7 +23,7 @@ function SedeCard({ sede, onEdit, onDelete }) {
     <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
       <div className="bg-linear-to-r from-indigo-500 to-purple-600 p-6 text-white">
         <div className="flex items-start justify-between mb-3">
-          <div className="bg-white bg-opacity-20 p-3 rounded-full backdrop-blur-sm">
+          <div className="bg-gray-700 bg-opacity-20 p-3 rounded-full backdrop-blur-sm">
             <FaBuilding className="text-3xl" />
           </div>
           <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getEstadoBadge(sede.estado)}`}>
