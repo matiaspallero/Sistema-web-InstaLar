@@ -23,10 +23,13 @@ function Calendario() {
         api.servicios.getAll(),
         api.tecnicos.getAll()
       ]);
-      setServicios(serviciosData);
-      setTecnicos(tecnicosData);
+      setServicios(Array.isArray(serviciosData) ? serviciosData : (serviciosData.servicios || serviciosData.data || []));
+      setTecnicos(Array.isArray(tecnicosData) ? tecnicosData : (tecnicosData.tecnicos || tecnicosData.data || []));
     } catch (error) {
       console.error('Error al cargar datos:', error);
+      // Establecer arrays vacíos en caso de error
+      setServicios([]);
+      setTecnicos([]);
     } finally {
       setLoading(false);
     }
@@ -46,6 +49,10 @@ function Calendario() {
   const getServiciosForDate = (day) => {
     const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
       .toISOString().split('T')[0];
+    
+    if (!Array.isArray(servicios)) {
+      return [];
+    }
     
     let serviciosFiltrados = servicios.filter(servicio => servicio.fecha === dateStr);
 
@@ -102,11 +109,13 @@ function Calendario() {
 
   const serviciosDelDia = selectedDate ? getServiciosForDate(selectedDate.getDate()) : [];
 
-  const serviciosDelMes = servicios.filter(servicio => {
-    const servicioDate = new Date(servicio.fecha);
-    return servicioDate.getMonth() === currentDate.getMonth() && 
-           servicioDate.getFullYear() === currentDate.getFullYear();
-  });
+  const serviciosDelMes = Array.isArray(servicios) 
+    ? servicios.filter(servicio => {
+        const servicioDate = new Date(servicio.fecha);
+        return servicioDate.getMonth() === currentDate.getMonth() && 
+              servicioDate.getFullYear() === currentDate.getFullYear();
+      })
+    : [];
 
   const statsDelMes = {
     total: serviciosDelMes.length,

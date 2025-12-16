@@ -24,6 +24,9 @@ import Calendario from './pages/Calendario';
 import Reportes from './pages/Reportes';
 import Sedes from './pages/Sedes';
 
+// Landing Page
+import Inicio from './pages/landing/Inicio';
+
 // Layout interno para usuarios logueados
 // Esto asegura que el Sidebar/Navbar SOLO se vean si estás autenticado
 const MainLayout = () => {
@@ -52,6 +55,9 @@ function AppContent() {
   return (
     <>
       <Routes>
+        {/* --- Ruta Landing Page (Pública) --- */}
+        <Route path="/" element={<Inicio />} />
+
         {/* --- Ruta Pública --- */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

@@ -26,19 +26,22 @@ function Clientes() {
     try {
       setLoading(true);
       const data = await api.clientes.getAll();
-      setClientes(data);
+      setClientes(Array.isArray(data) ? data : (data.clientes || data.data || []));
     } catch (error) {
       console.error('Error al cargar clientes:', error);
       alert('Error al cargar los clientes');
+      setClientes([]); // Establecer array vacío en caso de error
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredClientes = clientes.filter(cliente =>
-    cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredClientes = Array.isArray(clientes) 
+    ? clientes.filter(cliente =>
+        cliente.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cliente.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   const handleEdit = (cliente) => {
     setEditingCliente(cliente);

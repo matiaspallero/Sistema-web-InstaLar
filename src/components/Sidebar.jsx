@@ -9,20 +9,24 @@ import {
   FaChartBar,
   FaBars // Importamos la hamburguesa
 } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
 
 // Recibe 'isOpen' y 'onToggle' desde AppContent
 function Sidebar({ isOpen, onToggle }) {
+  const { user, hasPermission } = useAuth();
   const location = useLocation();
 
   const menuItems = [
-    { path: '/', icon: FaHome, label: 'Dashboard' },
-    { path: '/clientes', icon: FaUsers, label: 'Clientes' },
-    { path: '/servicios', icon: FaTools, label: 'Servicios' },
-    { path: '/tecnicos', icon: FaUserTie, label: 'Técnicos' },
-    { path: '/sedes', icon: FaBuilding, label: 'Sedes' },
-    { path: '/calendario', icon: FaCalendarAlt, label: 'Calendario' },
-    { path: '/reportes', icon: FaChartBar, label: 'Reportes' }
+    { path: '/', icon: FaHome, label: 'Dashboard', permission: 'dashboard.view' },
+    { path: '/clientes', icon: FaUsers, label: 'Clientes', permission: 'clientes.view' },
+    { path: '/servicios', icon: FaTools, label: 'Servicios', permission: 'servicios.view' },
+    { path: '/tecnicos', icon: FaUserTie, label: 'Técnicos', permission: 'tecnicos.view' },
+    { path: '/sedes', icon: FaBuilding, label: 'Sedes', permission: 'sedes.view' },
+    { path: '/calendario', icon: FaCalendarAlt, label: 'Calendario', permission: 'calendario.view' },
+    { path: '/reportes', icon: FaChartBar, label: 'Reportes', permission: 'reportes.view' }
   ];
+
+  const visibleMenuItems = menuItems.filter(item => hasPermission(item.permission));
 
   return (
     <>
@@ -68,7 +72,7 @@ function Sidebar({ isOpen, onToggle }) {
 
         {/* Menú de navegación */}
         <nav className="mt-6 overflow-y-auto h-[calc(100vh-85px)] pb-6">
-          {menuItems.map((item) => {
+          {visibleMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
 

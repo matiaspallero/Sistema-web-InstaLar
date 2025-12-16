@@ -84,5 +84,155 @@ export const api = {
         body: JSON.stringify(data)
       });
     }
+  },
+
+  // Endpoints para clientes
+  clientes: {
+    getAll: async () => {
+      return await request('/clientes');
+    },
+
+    getById: async (id) => {
+      return await request(`/clientes/${id}`);
+    },
+
+    create: async (data) => {
+      return await request('/clientes', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    update: async (id, data) => {
+      return await request(`/clientes/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      });
+    },
+
+    delete: async (id) => {
+      return await request(`/clientes/${id}`, {
+        method: 'DELETE'
+      });
+    }
+  },
+
+  // Endpoints para servicios
+  servicios: {
+    getAll: async () => {
+      return await request('/servicios');
+    },
+
+    getById: async (id) => {
+      return await request(`/servicios/${id}`);
+    },
+
+    create: async (data) => {
+      return await request('/servicios', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    update: async (id, data) => {
+      return await request(`/servicios/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      });
+    },
+
+    delete: async (id) => {
+      return await request(`/servicios/${id}`, {
+        method: 'DELETE'
+      });
+    },
+
+    updateEstado: async (id, estado) => {
+      return await request(`/servicios/${id}/estado`, {
+        method: 'PATCH',
+        body: JSON.stringify({ estado })
+      });
+    }
+  },
+
+  // Endpoints para técnicos
+  tecnicos: {
+    getAll: async () => {
+      return await request('/tecnicos');
+    },
+
+    getById: async (id) => {
+      return await request(`/tecnicos/${id}`);
+    },
+
+    create: async (data) => {
+      return await request('/tecnicos', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    update: async (id, data) => {
+      return await request(`/tecnicos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      });
+    },
+
+    delete: async (id) => {
+      return await request(`/tecnicos/${id}`, {
+        method: 'DELETE'
+      });
+    }
+  },
+
+  // Endpoints para sedes
+  sedes: {
+    getAll: async () => {
+      return await request('/sedes');
+    },
+
+    getById: async (id) => {
+      return await request(`/sedes/${id}`);
+    },
+
+    getByCliente: async (clienteId) => {
+      return await request(`/sedes/cliente/${clienteId}`);
+    },
+
+    create: async (data) => {
+      return await request('/sedes', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    update: async (id, data) => {
+      return await request(`/sedes/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      });
+    },
+
+    delete: async (id) => {
+      return await request(`/sedes/${id}`, {
+        method: 'DELETE'
+      });
+    }
+  },
+
+  // Endpoints para reportes
+  reportes: {
+    getEstadisticas: async () => {
+      return await request('/reportes/estadisticas');
+    },
+
+    getServiciosPorPeriodo: async (inicio, fin) => {
+      return await request(`/reportes/servicios?inicio=${inicio}&fin=${fin}`);
+    },
+
+    getServiciosPorTecnico: async (tecnicoId) => {
+      return await request(`/reportes/tecnicos/${tecnicoId}/servicios`);
+    }
   }
 };

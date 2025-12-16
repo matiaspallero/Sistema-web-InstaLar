@@ -24,11 +24,16 @@ function Reportes() {
     try {
       setLoading(true);
 
-      const [servicios, clientes, tecnicos] = await Promise.all([
+      const [serviciosRes, clientesRes, tecnicosRes] = await Promise.all([
         api.servicios.getAll(),
         api.clientes.getAll(),
         api.tecnicos.getAll()
       ]);
+
+      // Extraer los arrays de las respuestas, manejando diferentes formatos
+      const servicios = Array.isArray(serviciosRes) ? serviciosRes : (serviciosRes?.data || []);
+      const clientes = Array.isArray(clientesRes) ? clientesRes : (clientesRes?.data || []);
+      const tecnicos = Array.isArray(tecnicosRes) ? tecnicosRes : (tecnicosRes?.data || []);
 
       setStats({
         totalServicios: servicios.length,

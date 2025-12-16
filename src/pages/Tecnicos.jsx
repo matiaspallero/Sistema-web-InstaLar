@@ -25,19 +25,22 @@ function Tecnicos() {
     try {
       setLoading(true);
       const data = await api.tecnicos.getAll();
-      setTecnicos(data);
+      setTecnicos(Array.isArray(data) ? data : (data.tecnicos || data.data || []));
     } catch (error) {
       console.error('Error al cargar técnicos:', error);
       alert('Error al cargar los técnicos');
+      setTecnicos([]); // Establecer array vacío en caso de error
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredTecnicos = tecnicos.filter(tecnico =>
-    tecnico.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tecnico.especialidad?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTecnicos = Array.isArray(tecnicos) 
+    ? tecnicos.filter(tecnico =>
+        tecnico.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        tecnico.especialidad?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   const handleEdit = (tecnico) => {
     setEditingTecnico(tecnico);
