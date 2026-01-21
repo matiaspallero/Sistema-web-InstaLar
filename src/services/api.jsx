@@ -134,6 +134,24 @@ export const api = {
       });
     },
 
+    getByUser: async (userId) => {
+      return await request(`/servicios/usuario/${userId}`);
+    },
+
+    solicitar: async (data) => {
+      return await request('/servicios/solicitar', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    asignarTecnico: async (id, tecnico_id) => {
+      return await request(`/servicios/${id}/asignar-tecnico`, {
+        method: 'PATCH',
+        body: JSON.stringify({ tecnico_id })
+      });
+    },
+
     update: async (id, data) => {
       return await request(`/servicios/${id}`, {
         method: 'PUT',
@@ -152,7 +170,7 @@ export const api = {
         method: 'PATCH',
         body: JSON.stringify({ estado })
       });
-    }
+    },
   },
 
   // Endpoints para técnicos
@@ -183,7 +201,11 @@ export const api = {
       return await request(`/tecnicos/${id}`, {
         method: 'DELETE'
       });
-    }
+    },
+
+    getMisTrabajos: async () => {
+    return await request(`/servicios/tecnico/mis-trabajos`);
+    },
   },
 
   // Endpoints para sedes
@@ -198,6 +220,10 @@ export const api = {
 
     getByCliente: async (clienteId) => {
       return await request(`/sedes/cliente/${clienteId}`);
+    },
+
+    getByUser: async (userId) => {
+      return await request(`/sedes/usuario/${userId}`);
     },
 
     create: async (data) => {
@@ -216,6 +242,39 @@ export const api = {
 
     delete: async (id) => {
       return await request(`/sedes/${id}`, {
+        method: 'DELETE'
+      });
+    }
+  },
+
+  // --- SOLICITUDES (Agrega este bloque nuevo) ---
+  solicitudes: {
+    // Obtener todas (para el Admin/Cliente)
+    getAll: async () => {
+      const response = await request('/solicitudes');
+      // A veces el backend devuelve { success: true, data: [...] } y otras veces el array directo
+      return response.data || response; 
+    },
+
+    // Crear nueva solicitud (Cliente)
+    create: async (data) => {
+      return await request('/solicitudes', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    // ASIGNAR TÉCNICO (La función que pediste)
+    asignarTecnico: async (id, tecnico_id) => {
+      return await request(`/solicitudes/${id}/asignar-tecnico`, {
+        method: 'PATCH', // Coincide con tu routes.js
+        body: JSON.stringify({ tecnico_id })
+      });
+    },
+
+    // Eliminar solicitud
+    delete: async (id) => {
+      return await request(`/solicitudes/${id}`, {
         method: 'DELETE'
       });
     }

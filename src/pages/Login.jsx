@@ -54,10 +54,10 @@ function Login() {
           navigate(from === '/login' ? '/dashboard' : from);
           break;
         case ROLES.TECNICO:
-          navigate('/servicios');
+          navigate('/dashboard'); // Técnicos van al dashboard general
           break;
         case ROLES.CLIENTE:
-          navigate('/servicios'); // Los clientes ven sus servicios
+          navigate('/clienteDashboard'); // Los clientes ven sus servicios
           break;
         default:
           navigate('/dashboard');
@@ -79,7 +79,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-500 via-blue-600 to-purple-700 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-radial from-blue-500 via-blue-600 to-purple-700 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
         {/* Logo y título */}
         <div className="text-center mb-8">
@@ -148,7 +148,7 @@ function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                 tabIndex={-1}
               >
                 {showPassword ? (
@@ -178,7 +178,7 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="w-full bg-linear-to-r cursor-pointer from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             {loading ? (
               <>
@@ -195,7 +195,7 @@ function Login() {
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             ¿No tienes una cuenta?{' '}
-            <Link to="/register" className="text-blue-600 hover:text-blue-700 font-semibold transition">
+            <Link to="/register" className="text-blue-600 cursor-pointer hover:text-blue-700 font-semibold transition">
               Regístrate aquí
             </Link>
           </p>

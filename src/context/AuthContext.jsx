@@ -125,13 +125,14 @@ export function AuthProvider({ children }) {
       setError(null);
       setLoading(true);
 
+      // 1. Llamada a la API
       const response = await api.auth.register(userData);
       
       if (!response.success) {
         throw new Error(response.message || 'Error al registrar usuario');
       }
 
-      // Login automático después del registro
+      // 2. Login automático si corresponde
       if (response.token) {
         const { user: newUser, token } = response;
         localStorage.setItem('token', token);
@@ -140,7 +141,11 @@ export function AuthProvider({ children }) {
       }
 
       setLoading(false);
-      return { success: true, message: 'Usuario registrado exitosamente' };
+      
+      // ✅ CORRECCIÓN AQUÍ: Devolvemos 'response' COMPLETO
+      // Así 'Register.jsx' puede leer response.user.id
+      return response;
+
     } catch (error) {
       setError(error.message);
       setLoading(false);

@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaUser } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaUser, FaTimes, FaBuilding, FaIdCard, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 import { api } from '../services/api';
+import Loading from '../components/Loading'; // Usamos tu componente de carga visual
+import { useApp } from '../context/AppContext'; // Para notificaciones bonitas en vez de alerts
 
 function Clientes() {
+  const { mostrarNotificacion } = useApp(); // Usamos esto para mejorar la UX visual
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingCliente, setEditingCliente] = useState(null);
+  
+  // Tu estructura de datos exacta
   const [formData, setFormData] = useState({
     nombre: '',
     contacto: '',
@@ -26,11 +31,12 @@ function Clientes() {
     try {
       setLoading(true);
       const data = await api.clientes.getAll();
+      // Tu lógica de respuesta exacta
       setClientes(Array.isArray(data) ? data : (data.clientes || data.data || []));
     } catch (error) {
       console.error('Error al cargar clientes:', error);
-      alert('Error al cargar los clientes');
-      setClientes([]); // Establecer array vacío en caso de error
+      mostrarNotificacion('Error al cargar los clientes', 'error');
+      setClientes([]); 
     } finally {
       setLoading(false);
     }
@@ -62,10 +68,10 @@ function Clientes() {
       try {
         await api.clientes.delete(id);
         setClientes(clientes.filter(c => c.id !== id));
-        alert('Cliente eliminado correctamente');
+        mostrarNotificacion('Cliente eliminado correctamente', 'success');
       } catch (error) {
         console.error('Error al eliminar cliente:', error);
-        alert('Error al eliminar el cliente');
+        mostrarNotificacion('Error al eliminar el cliente', 'error');
       }
     }
   };
@@ -76,18 +82,22 @@ function Clientes() {
     try {
       if (editingCliente) {
         const updated = await api.clientes.update(editingCliente.id, formData);
-        setClientes(clientes.map(c => c.id === editingCliente.id ? updated : c));
-        alert('Cliente actualizado correctamente');
+        // Ajuste visual: actualizamos la lista localmente para que se vea rápido
+        setClientes(clientes.map(c => c.id === editingCliente.id ? (updated.data || updated) : c)); 
+        mostrarNotificacion('Cliente actualizado correctamente', 'success');
       } else {
         const newCliente = await api.clientes.create(formData);
-        setClientes([...clientes, newCliente]);
-        alert('Cliente creado correctamente');
+        // Ajuste visual: agregamos a la lista
+        setClientes([...clientes, (newCliente.data || newCliente)]);
+        mostrarNotificacion('Cliente creado correctamente', 'success');
       }
       
       handleCloseModal();
+      // Recarga de seguridad
+      cargarClientes();
     } catch (error) {
       console.error('Error al guardar cliente:', error);
-      alert('Error al guardar el cliente');
+      mostrarNotificacion('Error al guardar el cliente', 'error');
     }
   };
 
@@ -106,236 +116,283 @@ function Clientes() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <Loading mensaje="Cargando cartera de clientes..." />;
   }
 
   return (
-    <div>
-      {/* Header responsive */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Gestión de Clientes</h2>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-md text-sm md:text-base cursor-pointer"
-        >
-          <FaPlus /> Nuevo Cliente
-        </button>
-      </div>
-
-      {/* Buscador responsive */}
-      <div className="bg-white rounded-xl shadow-md p-4 md:p-6 mb-4 md:mb-6">
-        <div className="relative">
-          <FaSearch className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm md:text-base" />
-          <input
-            type="text"
-            placeholder="Buscar clientes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 md:pl-12 pr-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-          />
+    <div className="space-y-6 animate-fade-in">
+      
+      {/* HEADER VISUAL MEJORADO */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+             <FaUser className="text-blue-600" /> Gestión de Clientes
+          </h2>
+          <p className="text-gray-500 text-sm">Administra tu base de datos de usuarios</p>
+        </div>
+        
+        <div className="flex w-full md:w-auto gap-3">
+          {/* Barra de búsqueda estilizada */}
+          <div className="relative w-full md:w-64">
+            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar clientes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            />
+          </div>
+          
+          <button 
+            onClick={() => setShowModal(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition flex items-center gap-2 whitespace-nowrap cursor-pointer shadow-md shadow-blue-200"
+          >
+            <FaPlus /> Nuevo Cliente
+          </button>
         </div>
       </div>
 
-      {/* Tabla con scroll horizontal en móvil */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      {/* TABLA ESTILIZADA */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px]">
-            <thead className="bg-linear-to-r from-blue-500 to-blue-600 text-white">
-              <tr>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold uppercase">Cliente</th>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold uppercase">Contacto</th>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold uppercase">Email</th>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold uppercase">Teléfono</th>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold uppercase">Ciudad</th>
-                <th className="px-3 md:px-6 py-3 md:py-4 text-center text-xs md:text-sm font-bold uppercase">Acciones</th>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50 text-gray-600 text-xs uppercase font-bold border-b border-gray-200">
+                <th className="px-6 py-4">Cliente / Contacto</th>
+                <th className="px-6 py-4">Datos de Contacto</th>
+                <th className="px-6 py-4">Ubicación / RUC</th>
+                <th className="px-6 py-4 text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredClientes.map((cliente) => (
-                <tr key={cliente.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-3 md:px-6 py-3 md:py-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="bg-blue-100 p-1.5 md:p-2 rounded-full shrink-0">
-                        <FaUser className="text-blue-600 text-xs md:text-base" />
+            <tbody className="text-sm divide-y divide-gray-100">
+              {filteredClientes.length > 0 ? (
+                filteredClientes.map((cliente) => (
+                  <tr key={cliente.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                          {cliente.nombre ? cliente.nombre.charAt(0).toUpperCase() : <FaUser />}
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-800">{cliente.nombre}</p>
+                          {cliente.contacto && (
+                            <p className="text-xs text-blue-600 font-medium flex items-center gap-1">
+                              <FaUser size={10} /> {cliente.contacto}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <span className="font-semibold text-gray-900 text-xs md:text-sm truncate max-w-[120px] md:max-w-none">
-                        {cliente.nombre}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 text-gray-600 text-xs md:text-sm">
-                    {cliente.contacto || '-'}
-                  </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 text-gray-600 text-xs md:text-sm">
-                    <span className="truncate block max-w-[150px] md:max-w-none" title={cliente.email}>
-                      {cliente.email}
-                    </span>
-                  </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 text-gray-600 text-xs md:text-sm">
-                    {cliente.telefono || '-'}
-                  </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4 text-gray-600 text-xs md:text-sm">
-                    {cliente.ciudad || '-'}
-                  </td>
-                  <td className="px-3 md:px-6 py-3 md:py-4">
-                    <div className="flex justify-center gap-1 md:gap-2">
-                      <button 
-                        onClick={() => handleEdit(cliente)}
-                        className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-1.5 md:p-2 rounded-lg transition-colors"
-                        title="Editar"
-                      >
-                        <FaEdit className="text-xs md:text-base" />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(cliente.id)}
-                        className="bg-red-50 hover:bg-red-100 text-red-600 p-1.5 md:p-2 rounded-lg transition-colors"
-                        title="Eliminar"
-                      >
-                        <FaTrash className="text-xs md:text-base" />
-                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <FaEnvelope className="text-gray-400" size={12} />
+                          <span className="truncate max-w-[150px]" title={cliente.email}>{cliente.email}</span>
+                        </div>
+                        {cliente.telefono && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <FaPhone className="text-gray-400" size={12} />
+                            <span>{cliente.telefono}</span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                         {(cliente.direccion || cliente.ciudad) && (
+                           <div className="flex items-start gap-2 text-gray-600">
+                             <FaMapMarkerAlt className="text-red-400 mt-1" size={12} />
+                             <span className="text-xs">
+                               {cliente.direccion} {cliente.ciudad ? `(${cliente.ciudad})` : ''}
+                             </span>
+                           </div>
+                         )}
+                         {cliente.ruc && (
+                           <div className="flex items-center gap-2 text-gray-500 text-xs">
+                             <FaIdCard className="text-gray-400" />
+                             <span>RUC: {cliente.ruc}</span>
+                           </div>
+                         )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center gap-2 opacity-100 sm:group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={() => handleEdit(cliente)}
+                          className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition-colors cursor-pointer"
+                          title="Editar"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(cliente.id)}
+                          className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition-colors cursor-pointer"
+                          title="Eliminar"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="px-6 py-12 text-center text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <FaUser className="text-4xl text-gray-200 mb-2" />
+                      <p>No se encontraron clientes.</p>
                     </div>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
         
-        {/* Indicador de scroll en móvil */}
-        <div className="sm:hidden bg-gray-50 text-center py-2 text-xs text-gray-500">
-          ← Desliza para ver más →
+        {/* Footer simple */}
+        <div className="bg-gray-50 px-6 py-3 border-t border-gray-200 text-xs text-gray-500 flex justify-between">
+           <span>Total: {filteredClientes.length} registros</span>
         </div>
       </div>
 
-      {filteredClientes.length === 0 && (
-        <div className="bg-white rounded-xl shadow-md text-center py-8 md:py-12 mt-4 md:mt-6">
-          <p className="text-gray-500 text-sm md:text-lg">No se encontraron clientes</p>
-        </div>
-      )}
-
-      {/* Modal responsive */}
+      {/* MODAL ESTILIZADO */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 md:p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto">
-            <div className="bg-linear-to-r from-blue-600 to-blue-700 p-4 md:p-6 text-white sticky top-0 z-10">
-              <h3 className="text-xl md:text-2xl font-bold">
-                {editingCliente ? 'Editar Cliente' : 'Nuevo Cliente'}
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col">
+            
+            {/* Header del Modal */}
+            <div className="bg-blue-600 p-6 flex justify-between items-center text-white shrink-0 sticky top-0 z-10">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                {editingCliente ? <><FaEdit /> Editar Cliente</> : <><FaPlus /> Nuevo Cliente</>}
               </h3>
+              <button 
+                onClick={handleCloseModal}
+                className="text-white/70 hover:text-white transition cursor-pointer bg-white/10 p-2 rounded-full"
+              >
+                <FaTimes size={20} />
+              </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Nombre */}
                 <div>
-                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
-                    Nombre / Empresa *
-                  </label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre / Razón Social *</label>
                   <input
                     type="text"
                     required
                     value={formData.nombre}
                     onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                    className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                    placeholder="Empresa ABC S.A.C."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="Ej: Empresa S.A."
                   />
                 </div>
 
+                {/* RUC (Manteniendo tu campo) */}
                 <div>
-                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
-                    Persona de Contacto
-                  </label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">RUC / CUIT</label>
+                  <div className="relative">
+                    <FaIdCard className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      value={formData.ruc}
+                      onChange={(e) => setFormData({...formData, ruc: e.target.value})}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="Identificación Fiscal"
+                    />
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Email *</label>
+                  <div className="relative">
+                    <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="correo@ejemplo.com"
+                    />
+                  </div>
+                </div>
+
+                {/* Teléfono */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
+                  <div className="relative">
+                    <FaPhone className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="tel"
+                      value={formData.telefono}
+                      onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="Ej: 381..."
+                    />
+                  </div>
+                </div>
+
+                {/* Contacto */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Persona de Contacto</label>
                   <input
                     type="text"
                     value={formData.contacto}
                     onChange={(e) => setFormData({...formData, contacto: e.target.value})}
-                    className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                    placeholder="Juan Pérez"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="Ej: Juan Pérez"
                   />
                 </div>
 
+                {/* Ciudad */}
                 <div>
-                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                    placeholder="contacto@empresa.com"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
-                    Teléfono
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.telefono}
-                    onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                    className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                    placeholder="987654321"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
-                    CUIT / RUC
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.ruc}
-                    onChange={(e) => setFormData({...formData, ruc: e.target.value})}
-                    className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                    placeholder="20123456789"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
-                    Ciudad
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.ciudad}
-                    onChange={(e) => setFormData({...formData, ciudad: e.target.value})}
-                    className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                    placeholder="Lima"
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Ciudad</label>
+                  <div className="relative">
+                    <FaBuilding className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      value={formData.ciudad}
+                      onChange={(e) => setFormData({...formData, ciudad: e.target.value})}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="Ej: San Miguel"
+                    />
+                  </div>
                 </div>
               </div>
 
+              {/* Dirección */}
               <div>
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
-                  Dirección
-                </label>
-                <textarea
-                  value={formData.direccion}
-                  onChange={(e) => setFormData({...formData, direccion: e.target.value})}
-                  className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                  rows="3"
-                  placeholder="Av. Principal 123, San Isidro"
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Dirección</label>
+                <div className="relative">
+                   <FaMapMarkerAlt className="absolute left-3 top-3 text-gray-400" />
+                   <textarea
+                    value={formData.direccion}
+                    onChange={(e) => setFormData({...formData, direccion: e.target.value})}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                    rows="2"
+                    placeholder="Calle, Número, Piso..."
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-2 md:gap-3 pt-4">
+              {/* Botones del Modal */}
+              <div className="flex gap-3 pt-4 border-t border-gray-100 mt-4">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm md:text-base cursor-pointer"
+                  className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 cursor-pointer transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm md:text-base cursor-pointer"
+                  className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 cursor-pointer transition-colors shadow-lg shadow-blue-200"
                 >
-                  {editingCliente ? 'Actualizar' : 'Crear'}
+                  {editingCliente ? 'Guardar Cambios' : 'Registrar Cliente'}
                 </button>
               </div>
             </form>

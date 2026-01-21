@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaChartBar, FaUsers, FaTools, FaCheckCircle } from 'react-icons/fa';
+import { FaChartBar, FaUsers, FaTools, FaCheckCircle, FaChartPie } from 'react-icons/fa';
 import { api } from '../services/api';
 
 function Reportes() {
@@ -87,106 +87,135 @@ function Reportes() {
   const maxServicios = Math.max(...serviciosPorMes.map(m => m.servicios), 1);
 
   return (
-    <div>
-      <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8">
-        Reportes y Estadísticas
-      </h2>
-
-      {/* Estadísticas Generales - Responsive */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
-        <div className="bg-linear-to-br from-blue-500 to-blue-700 rounded-lg md:rounded-xl shadow-lg p-3 md:p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm opacity-90 mb-1 md:mb-2">Total Servicios</p>
-              <h3 className="text-2xl md:text-4xl font-bold">{stats.totalServicios}</h3>
-            </div>
-            <FaChartBar className="text-2xl md:text-4xl opacity-80" />
-          </div>
+    <div className="space-y-6 animate-fade-in">
+      
+      {/* HEADER */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
+        <div className="p-3 bg-blue-50 rounded-full text-blue-600">
+          <FaChartPie className="text-2xl" />
         </div>
-
-        <div className="bg-linear-to-br from-green-500 to-green-700 rounded-lg md:rounded-xl shadow-lg p-3 md:p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm opacity-90 mb-1 md:mb-2">Completados</p>
-              <h3 className="text-2xl md:text-4xl font-bold">{stats.serviciosCompletados}</h3>
-            </div>
-            <FaCheckCircle className="text-2xl md:text-4xl opacity-80" />
-          </div>
-        </div>
-
-        <div className="bg-linear-to-br from-yellow-500 to-orange-500 rounded-lg md:rounded-xl shadow-lg p-3 md:p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm opacity-90 mb-1 md:mb-2">En Proceso</p>
-              <h3 className="text-2xl md:text-4xl font-bold">{stats.serviciosEnProceso}</h3>
-            </div>
-            <FaTools className="text-2xl md:text-4xl opacity-80" />
-          </div>
-        </div>
-
-        <div className="bg-linear-to-br from-purple-500 to-purple-700 rounded-lg md:rounded-xl shadow-lg p-3 md:p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm opacity-90 mb-1 md:mb-2">Total Clientes</p>
-              <h3 className="text-2xl md:text-4xl font-bold">{stats.totalClientes}</h3>
-            </div>
-            <FaUsers className="text-2xl md:text-4xl opacity-80" />
-          </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Reportes y Estadísticas</h2>
+          <p className="text-gray-500 text-sm">Resumen general del rendimiento</p>
         </div>
       </div>
 
-      {/* Gráfico de Servicios por Mes - Responsive */}
-      <div className="bg-white rounded-xl shadow-md p-4 md:p-6 mb-6 md:mb-8">
-        <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4 md:mb-6">
-          Servicios por Mes
-        </h3>
-        <div className="flex items-end justify-between h-48 md:h-64 gap-2 md:gap-4">
-          {serviciosPorMes.map((data, index) => (
-            <div key={index} className="flex-1 flex flex-col items-center">
-              <div className="w-full bg-blue-200 rounded-t-lg relative" style={{ height: `${(data.servicios / maxServicios) * 100}%`, minHeight: '20px' }}>
-                <div className="absolute -top-5 md:-top-6 left-0 right-0 text-center text-xs md:text-sm font-semibold text-gray-700">
-                  {data.servicios}
-                </div>
-                <div className="w-full h-full bg-linear-to-t from-blue-600 to-blue-400 rounded-t-lg"></div>
-              </div>
-              <div className="mt-2 text-xs md:text-sm font-semibold text-gray-600">
-                {data.mes}
-              </div>
-            </div>
-          ))}
+      {/* KPI CARDS (Grid 4 columnas) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Servicios */}
+        <div className="bg-linear-to-br from-blue-500 to-blue-700 rounded-xl shadow-md p-6 text-white relative overflow-hidden group hover:shadow-lg transition-all">
+          <div className="relative z-10">
+            <p className="text-blue-100 text-sm font-medium mb-1">Total Servicios</p>
+            <h3 className="text-3xl font-bold">{stats.totalServicios}</h3>
+          </div>
+          <FaChartBar className="absolute -bottom-2 -right-2 text-6xl text-white opacity-20 group-hover:scale-110 transition-transform" />
+        </div>
+
+        {/* Completados */}
+        <div className="bg-linear-to-br from-green-500 to-green-700 rounded-xl shadow-md p-6 text-white relative overflow-hidden group hover:shadow-lg transition-all">
+          <div className="relative z-10">
+            <p className="text-green-100 text-sm font-medium mb-1">Completados</p>
+            <h3 className="text-3xl font-bold">{stats.serviciosCompletados}</h3>
+          </div>
+          <FaCheckCircle className="absolute -bottom-2 -right-2 text-6xl text-white opacity-20 group-hover:scale-110 transition-transform" />
+        </div>
+
+        {/* En Proceso */}
+        <div className="bg-linear-to-br from-orange-400 to-orange-600 rounded-xl shadow-md p-6 text-white relative overflow-hidden group hover:shadow-lg transition-all">
+          <div className="relative z-10">
+            <p className="text-orange-100 text-sm font-medium mb-1">En Proceso</p>
+            <h3 className="text-3xl font-bold">{stats.serviciosEnProceso}</h3>
+          </div>
+          <FaTools className="absolute -bottom-2 -right-2 text-6xl text-white opacity-20 group-hover:scale-110 transition-transform" />
+        </div>
+
+        {/* Clientes */}
+        <div className="bg-linear-to-br from-purple-500 to-purple-700 rounded-xl shadow-md p-6 text-white relative overflow-hidden group hover:shadow-lg transition-all">
+          <div className="relative z-10">
+            <p className="text-purple-100 text-sm font-medium mb-1">Cartera Clientes</p>
+            <h3 className="text-3xl font-bold">{stats.totalClientes}</h3>
+          </div>
+          <FaUsers className="absolute -bottom-2 -right-2 text-6xl text-white opacity-20 group-hover:scale-110 transition-transform" />
         </div>
       </div>
 
-      {/* Top Técnicos - Responsive */}
-      <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
-        <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4 md:mb-6">
-          Top 5 Técnicos
-        </h3>
-        <div className="space-y-3 md:space-y-4">
-          {tecnicosTop.map((tecnico, index) => (
-            <div key={index} className="flex items-center gap-3 md:gap-4">
-              <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-base shrink-0">
-                {index + 1}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-semibold text-gray-800 text-sm md:text-base truncate">
-                    {tecnico.nombre}
-                  </span>
-                  <span className="text-blue-600 font-bold text-sm md:text-base ml-2 shrink-0">
-                    {tecnico.servicios} servicios
-                  </span>
+      {/* SECCIÓN INFERIOR (Gráficos y Listas) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* GRÁFICO DE BARRAS (Ocupa 2 columnas) */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <FaChartBar className="text-blue-500" /> Rendimiento Semestral
+            </h3>
+          </div>
+          
+          <div className="flex items-end justify-between h-64 gap-3 md:gap-6 px-2">
+            {serviciosPorMes.map((data, index) => (
+              <div key={index} className="flex-1 flex flex-col items-center group">
+                <div 
+                  className="w-full bg-blue-100 rounded-t-lg relative transition-all duration-500 ease-out group-hover:bg-blue-200" 
+                  style={{ height: `${(data.servicios / maxServicios) * 100}%`, minHeight: '8px' }}
+                >
+                  {/* Tooltip con valor */}
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    {data.servicios} Serv.
+                  </div>
+                  
+                  {/* Barra rellena */}
+                  <div className="w-full h-full bg-linear-to-t from-blue-600 to-blue-400 rounded-t-lg opacity-90 group-hover:opacity-100"></div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5 md:h-2">
-                  <div
-                    className="bg-linear-to-r from-blue-500 to-blue-700 h-1.5 md:h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${(tecnico.servicios / (tecnicosTop[0]?.servicios || 1)) * 100}%` }}
-                  ></div>
+                <div className="mt-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  {data.mes}
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
+        {/* TOP TÉCNICOS (Ocupa 1 columna) */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <FaTools className="text-orange-500" /> Top Técnicos
+          </h3>
+          
+          <div className="space-y-5">
+            {tecnicosTop.length > 0 ? (
+              tecnicosTop.map((tecnico, index) => (
+                <div key={index} className="flex items-center gap-4">
+                  {/* Badge de Posición */}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow-sm
+                    ${index === 0 ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' : 
+                      index === 1 ? 'bg-gray-100 text-gray-600 border border-gray-200' : 
+                      index === 2 ? 'bg-orange-50 text-orange-700 border border-orange-100' : 
+                      'bg-blue-50 text-blue-600'}`}
+                  >
+                    {index + 1}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-semibold text-gray-700 text-sm truncate">{tecnico.nombre}</span>
+                      <span className="text-xs font-bold text-gray-500">{tecnico.servicios} serv.</span>
+                    </div>
+                    {/* Barra de progreso mini */}
+                    <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          index === 0 ? 'bg-yellow-400' : 'bg-blue-500'
+                        }`}
+                        style={{ width: `${(tecnico.servicios / (tecnicosTop[0]?.servicios || 1)) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-gray-400 text-sm py-4">No hay datos de técnicos</p>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );

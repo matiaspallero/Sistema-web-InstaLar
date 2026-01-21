@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 // Contexts
 import { AppProvider, useApp } from './context/AppContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Components
 import Sidebar from './components/Sidebar';
@@ -12,25 +12,55 @@ import Notification from './components/Notification';
 import Loading from './components/Loading';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages
+// Páginas del cliente
+import ClienteDashboard from './pages/clientes-pages/ClienteDashboad';
+import MisSedes from './pages/clientes-pages/MisSedes';
+
+// Páginas del técnico
+import Servicios from './pages/Servicios';
+import Calendario from './pages/Calendario';
+import MisTrabajos from './pages/tecnico-pages/MisTrabajos';
+
+// Páginas del admin
+import Clientes from './pages/Clientes';
+import Solicitudes from './pages/Solicitudes';
+import Tecnicos from './pages/Tecnicos';
+import Reportes from './pages/Reportes';
+import Sedes from './pages/Sedes';
+
+// Páginas generales
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 
-import Clientes from './pages/Clientes';
-import Servicios from './pages/Servicios';
-import Tecnicos from './pages/Tecnicos';
-import Calendario from './pages/Calendario';
-import Reportes from './pages/Reportes';
-import Sedes from './pages/Sedes';
 
 // Landing Page
 import Inicio from './pages/landing/Inicio';
 
-// Layout interno para usuarios logueados
-// Esto asegura que el Sidebar/Navbar SOLO se vean si estás autenticado
+const HomeRedirect = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) return <Loading fullScreen />;
+  
+  if (!user) return <Navigate to="/login" replace />;
+
+  // Aquí está la magia: Redirección según ROL
+  if (user.rol === 'cliente') {
+    return <Navigate to="/clienteDashboard" replace />;
+  } else {
+    // Admins y Técnicos van al Dashboard general
+    return <Navigate to="/dashboard" replace />;
+  }
+};
+
+// Layout principal
 const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { user } = useAuth();
+
+  // Ocultamos Sidebar para clientes (opcional, si quieres que tengan otro menú)
+  // O lo dejamos si el Sidebar ya se adapta (que debería).
+  // Por ahora asumimos que el Sidebar se muestra para todos.
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -41,7 +71,6 @@ const MainLayout = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar />
         <main className="flex-1 overflow-y-auto p-6">
-          {/* Outlet renderiza la ruta hija seleccionada (Dashboard, Clientes, etc.) */}
           <Outlet />
         </main>
       </div>
@@ -55,38 +84,68 @@ function AppContent() {
   return (
     <>
       <Routes>
-        {/* --- Ruta Landing Page (Pública) --- */}
+        {/* Ruta Pública (Landing) */}
         <Route path="/" element={<Inicio />} />
 
-        {/* --- Ruta Pública --- */}
+        {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         {/* --- Rutas Privadas --- */}
-        {/* Protegemos el Layout completo. Si no hay acceso, redirige a Login antes de cargar el Sidebar */}
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* Ruta "Home" interna: El Portero decide a dónde vas */}
+          <Route path="/home" element={<HomeRedirect />} />
+
+          {/* Rutas Admin / Técnico */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute allowedRoles={['admin', 'tecnico']}>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/solicitudes" element={
+            <ProtectedRoute allowedRoles={['admin', 'tecnico']}>
+              <Solicitudes />
+            </ProtectedRoute>
+          } />
+
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/tecnicos" element={<Tecnicos />} />
           <Route path="/sedes" element={<Sedes />} />
           <Route path="/calendario" element={<Calendario />} />
 
-          {/* Ejemplo: Reportes solo para admin */}
-          {/* Nota: Aquí anidamos otro ProtectedRoute solo para validar el rol */}
           <Route path="/reportes" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <Reportes />
             </ProtectedRoute>
           } />
+
+          {/* Ruta Exclusiva Cliente */}
+          <Route path="/clienteDashboard" element={
+            <ProtectedRoute allowedRoles={['cliente']}>
+              <ClienteDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/misSedes" element={
+            <ProtectedRoute allowedRoles={['cliente']}>
+              <MisSedes clienteView={true} />
+            </ProtectedRoute>
+          } />
+
+          {/* Ruta Exclusiva Técnico */}
+          <Route path="/misTrabajos" element={
+            <ProtectedRoute allowedRoles={['tecnico']}>
+              <MisTrabajos />
+            </ProtectedRoute>
+          } />
         </Route>
 
-        {/* --- Redirecciones por defecto --- */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        {/* Catch-all: Si ponen una ruta rara, los mandamos al Portero para que los ubique */}
+        <Route path="*" element={<HomeRedirect />} />
       </Routes>
 
-      {/* Componentes globales de UI */}
       <Notification 
         notification={notification} 
         onClose={() => mostrarNotificacion(null)} 

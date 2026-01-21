@@ -1,17 +1,38 @@
 import { useState, useEffect } from 'react';
-import { FaChevronLeft, FaChevronRight, FaCalendarDay, FaFilter, FaTimes } from 'react-icons/fa';
+import { 
+  FaCalendarAlt, 
+  FaChevronLeft, 
+  FaChevronRight, 
+  FaFilter, 
+  FaTimes, 
+  FaCalendarDay,
+  FaCheckCircle,
+  FaClock,
+  FaTools,
+  FaExclamationCircle
+} from 'react-icons/fa';
 import { api } from '../services/api';
+import Loading from '../components/Loading';
+import { useApp } from '../context/AppContext';
 
 function Calendario() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const { mostrarNotificacion } = useApp();
+  
+  // --- ESTADOS ---
   const [servicios, setServicios] = useState([]);
+  const [tecnicos, setTecnicos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(null);
+  
+  // Estado del Calendario
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null); // Fecha clickeada
   const [showModal, setShowModal] = useState(false);
+  
+  // Filtros
   const [filterEstado, setFilterEstado] = useState('todos');
   const [filterTecnico, setFilterTecnico] = useState('todos');
-  const [tecnicos, setTecnicos] = useState([]);
 
+  // --- CARGAR DATOS ---
   useEffect(() => {
     cargarDatos();
   }, []);
@@ -19,59 +40,39 @@ function Calendario() {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [serviciosData, tecnicosData] = await Promise.all([
+      const [resServicios, resTecnicos] = await Promise.all([
         api.servicios.getAll(),
         api.tecnicos.getAll()
       ]);
-      setServicios(Array.isArray(serviciosData) ? serviciosData : (serviciosData.servicios || serviciosData.data || []));
-      setTecnicos(Array.isArray(tecnicosData) ? tecnicosData : (tecnicosData.tecnicos || tecnicosData.data || []));
+
+      const dataServicios = Array.isArray(resServicios) ? resServicios : (resServicios.data || []);
+      const dataTecnicos = Array.isArray(resTecnicos) ? resTecnicos : (resTecnicos.data || []);
+
+      setServicios(dataServicios);
+      setTecnicos(dataTecnicos);
     } catch (error) {
-      console.error('Error al cargar datos:', error);
-      // Establecer arrays vacíos en caso de error
-      setServicios([]);
-      setTecnicos([]);
+      console.error(error);
+      mostrarNotificacion('Error cargando la agenda', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  // --- LÓGICA DE CALENDARIO ---
   const getDaysInMonth = (date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-
-    return { daysInMonth, startingDayOfWeek };
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
-  const getServiciosForDate = (day) => {
-    const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-      .toISOString().split('T')[0];
-    
-    if (!Array.isArray(servicios)) {
-      return [];
-    }
-    
-    let serviciosFiltrados = servicios.filter(servicio => servicio.fecha === dateStr);
-
-    if (filterEstado !== 'todos') {
-      serviciosFiltrados = serviciosFiltrados.filter(s => s.estado === filterEstado);
-    }
-    if (filterTecnico !== 'todos') {
-      serviciosFiltrados = serviciosFiltrados.filter(s => s.tecnico_id === filterTecnico);
-    }
-
-    return serviciosFiltrados;
+  const getFirstDayOfMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
   const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
   };
 
   const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
   const handleToday = () => {
@@ -84,14 +85,64 @@ function Calendario() {
     setShowModal(true);
   };
 
+  // --- FILTROS Y DATOS COMPUTADOS ---
+  
+  // 1. Filtrar servicios globales por los selectores
+  const serviciosFiltrados = servicios.filter(s => {
+    const matchEstado = filterEstado === 'todos' || s.estado === filterEstado;
+    const matchTecnico = filterTecnico === 'todos' || s.tecnico_id === filterTecnico;
+    return matchEstado && matchTecnico;
+  });
+
+  // 2. Obtener servicios para un día específico (para pintar en el calendario)
+  const getServiciosForDate = (day) => {
+    return serviciosFiltrados.filter(s => {
+      if (!s.fecha) return false;
+      // Ajuste de zona horaria simple (asumiendo string YYYY-MM-DD)
+      const sDate = new Date(s.fecha + 'T00:00:00'); 
+      return (
+        sDate.getDate() === day &&
+        sDate.getMonth() === currentDate.getMonth() &&
+        sDate.getFullYear() === currentDate.getFullYear()
+      );
+    });
+  };
+
+  // 3. Estadísticas del Mes Actual
+  const statsDelMes = {
+    total: 0,
+    completados: 0,
+    enProceso: 0,
+    pendientes: 0,
+    cancelados: 0
+  };
+
+  // Recorremos TODOS los servicios (sin filtros de visualización) para estadísticas reales del mes
+  servicios.forEach(s => {
+    if (!s.fecha) return;
+    const sDate = new Date(s.fecha + 'T00:00:00');
+    if (sDate.getMonth() === currentDate.getMonth() && sDate.getFullYear() === currentDate.getFullYear()) {
+      statsDelMes.total++;
+      if (s.estado === 'completado') statsDelMes.completados++;
+      else if (s.estado === 'en-proceso') statsDelMes.enProceso++;
+      else if (s.estado === 'pendiente') statsDelMes.pendientes++;
+      else if (s.estado === 'cancelado') statsDelMes.cancelados++;
+    }
+  });
+
+  // --- HELPERS VISUALES ---
+  const monthName = currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  const daysInMonth = getDaysInMonth(currentDate);
+  const startingDayOfWeek = getFirstDayOfMonth(currentDate);
+
   const getEstadoBadgeClass = (estado) => {
-    const badges = {
-      'completado': 'bg-green-100 text-green-800 border-l-4 border-green-500',
-      'en-proceso': 'bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500',
-      'pendiente': 'bg-purple-100 text-purple-800 border-l-4 border-purple-500',
-      'cancelado': 'bg-red-100 text-red-800 border-l-4 border-red-500'
+    const classes = {
+      'completado': 'border-l-4 border-green-500 bg-green-50',
+      'en-proceso': 'border-l-4 border-yellow-500 bg-yellow-50',
+      'pendiente': 'border-l-4 border-purple-500 bg-purple-50',
+      'cancelado': 'border-l-4 border-red-500 bg-red-50'
     };
-    return badges[estado] || 'bg-blue-100 text-blue-800 border-l-4 border-blue-500';
+    return classes[estado] || 'bg-gray-50';
   };
 
   const getEstadoTexto = (estado) => {
@@ -104,192 +155,190 @@ function Calendario() {
     return textos[estado] || estado;
   };
 
-  const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
-  const monthName = currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-
-  const serviciosDelDia = selectedDate ? getServiciosForDate(selectedDate.getDate()) : [];
-
-  const serviciosDelMes = Array.isArray(servicios) 
-    ? servicios.filter(servicio => {
-        const servicioDate = new Date(servicio.fecha);
-        return servicioDate.getMonth() === currentDate.getMonth() && 
-              servicioDate.getFullYear() === currentDate.getFullYear();
-      })
+  const serviciosDelDia = selectedDate 
+    ? getServiciosForDate(selectedDate.getDate()) 
     : [];
 
-  const statsDelMes = {
-    total: serviciosDelMes.length,
-    completados: serviciosDelMes.filter(s => s.estado === 'completado').length,
-    pendientes: serviciosDelMes.filter(s => s.estado === 'pendiente').length,
-    enProceso: serviciosDelMes.filter(s => s.estado === 'en-proceso').length,
-    cancelados: serviciosDelMes.filter(s => s.estado === 'cancelado').length
-  };
+  if (loading) return <Loading mensaje="Cargando agenda..." />;
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
+  // --- RENDERIZADO ---
   return (
-    <div>
-      {/* Estadísticas del mes - Responsive */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
-        <div className="bg-linear-to-br from-blue-500 to-blue-700 rounded-lg md:rounded-xl shadow-lg p-3 md:p-4 text-white">
-          <p className="text-xs md:text-sm opacity-90 mb-1">Total del Mes</p>
-          <h3 className="text-2xl md:text-3xl font-bold">{statsDelMes.total}</h3>
+    <div className="space-y-6 animate-fade-in">
+      
+      {/* 1. Header con Estadísticas del Mes */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-blue-50 rounded-full text-blue-600">
+            <FaCalendarAlt className="text-2xl" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 capitalize">{monthName}</h2>
+            <p className="text-gray-500 text-sm">Vista general de la agenda mensual</p>
+          </div>
         </div>
-        <div className="bg-linear-to-br from-green-500 to-green-700 rounded-lg md:rounded-xl shadow-lg p-3 md:p-4 text-white">
-          <p className="text-xs md:text-sm opacity-90 mb-1">Completados</p>
-          <h3 className="text-2xl md:text-3xl font-bold">{statsDelMes.completados}</h3>
-        </div>
-        <div className="bg-linear-to-br from-yellow-500 to-orange-500 rounded-lg md:rounded-xl shadow-lg p-3 md:p-4 text-white">
-          <p className="text-xs md:text-sm opacity-90 mb-1">En Proceso</p>
-          <h3 className="text-2xl md:text-3xl font-bold">{statsDelMes.enProceso}</h3>
-        </div>
-        <div className="bg-linear-to-br from-purple-500 to-purple-700 rounded-lg md:rounded-xl shadow-lg p-3 md:p-4 text-white">
-          <p className="text-xs md:text-sm opacity-90 mb-1">Pendientes</p>
-          <h3 className="text-2xl md:text-3xl font-bold">{statsDelMes.pendientes}</h3>
-        </div>
-        <div className="bg-linear-to-br from-red-500 to-red-700 rounded-lg md:rounded-xl shadow-lg p-3 md:p-4 text-white">
-          <p className="text-xs md:text-sm opacity-90 mb-1">Cancelados</p>
-          <h3 className="text-2xl md:text-3xl font-bold">{statsDelMes.cancelados}</h3>
+
+        {/* Grid de Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="bg-blue-600 text-white p-4 rounded-xl shadow-sm flex flex-col justify-between h-24">
+            <div className="flex justify-between items-start">
+              <span className="text-blue-100 text-xs font-semibold uppercase">Total Mes</span>
+              <FaCalendarDay className="opacity-30" />
+            </div>
+            <span className="text-3xl font-bold">{statsDelMes.total}</span>
+          </div>
+          
+          <div className="bg-green-500 text-white p-4 rounded-xl shadow-sm flex flex-col justify-between h-24">
+            <div className="flex justify-between items-start">
+              <span className="text-green-100 text-xs font-semibold uppercase">Completados</span>
+              <FaCheckCircle className="opacity-30" />
+            </div>
+            <span className="text-3xl font-bold">{statsDelMes.completados}</span>
+          </div>
+
+          <div className="bg-yellow-500 text-white p-4 rounded-xl shadow-sm flex flex-col justify-between h-24">
+            <div className="flex justify-between items-start">
+              <span className="text-yellow-100 text-xs font-semibold uppercase">En Proceso</span>
+              <FaTools className="opacity-30" />
+            </div>
+            <span className="text-3xl font-bold">{statsDelMes.enProceso}</span>
+          </div>
+
+          <div className="bg-purple-500 text-white p-4 rounded-xl shadow-sm flex flex-col justify-between h-24">
+            <div className="flex justify-between items-start">
+              <span className="text-purple-100 text-xs font-semibold uppercase">Pendientes</span>
+              <FaClock className="opacity-30" />
+            </div>
+            <span className="text-3xl font-bold">{statsDelMes.pendientes}</span>
+          </div>
+
+          <div className="bg-red-500 text-white p-4 rounded-xl shadow-sm flex flex-col justify-between h-24 col-span-2 lg:col-span-1">
+            <div className="flex justify-between items-start">
+              <span className="text-red-100 text-xs font-semibold uppercase">Cancelados</span>
+              <FaExclamationCircle className="opacity-30" />
+            </div>
+            <span className="text-3xl font-bold">{statsDelMes.cancelados}</span>
+          </div>
         </div>
       </div>
 
-      {/* Controles y Filtros - Responsive */}
-      <div className="bg-white rounded-xl shadow-md p-3 md:p-4 mb-4 md:mb-6">
-        {/* Navegación del calendario */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 md:gap-4 mb-4">
-          <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto justify-center">
-            <button
-              onClick={handlePrevMonth}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-2 md:p-3 rounded-lg transition-colors"
-            >
-              <FaChevronLeft className="text-sm md:text-base" />
+      {/* 2. Controles y Calendario */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        
+        {/* Barra de Herramientas */}
+        <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+          
+          {/* Navegación */}
+          <div className="flex items-center gap-4 bg-gray-50 p-1 rounded-lg">
+            <button onClick={handlePrevMonth} className="p-2 cursor-pointer hover:bg-white rounded-md text-gray-600 transition shadow-sm">
+              <FaChevronLeft />
             </button>
-            <h2 className="text-lg md:text-2xl font-bold text-gray-800 capitalize min-w-[180px] md:min-w-[250px] text-center">
-              {monthName}
-            </h2>
-            <button
-              onClick={handleNextMonth}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-2 md:p-3 rounded-lg transition-colors"
-            >
-              <FaChevronRight className="text-sm md:text-base" />
+            <button onClick={handleToday} className="px-4 py-1 cursor-pointer text-sm font-bold text-gray-700 hover:text-blue-600 transition">
+              Hoy
+            </button>
+            <button onClick={handleNextMonth} className="p-2 cursor-pointer hover:bg-white rounded-md text-gray-600 transition shadow-sm">
+              <FaChevronRight />
             </button>
           </div>
-          <button
-            onClick={handleToday}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm md:text-base w-full sm:w-auto justify-center"
-          >
-            <FaCalendarDay /> Hoy
-          </button>
+
+          {/* Filtros */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div className="relative">
+              <FaFilter className="absolute left-3 top-3 text-gray-400 text-xs" />
+              <select
+                value={filterEstado}
+                onChange={(e) => setFilterEstado(e.target.value)}
+                className="pl-8 pr-4 cursor-pointer py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full bg-gray-50"
+              >
+                <option value="todos">Todos los Estados</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="en-proceso">En Proceso</option>
+                <option value="completado">Completado</option>
+              </select>
+            </div>
+
+            <div className="relative">
+              <FaTools className="absolute left-3 top-3 text-gray-400 text-xs" />
+              <select
+                value={filterTecnico}
+                onChange={(e) => setFilterTecnico(e.target.value)}
+                className="pl-8 cursor-pointer pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full bg-gray-50"
+              >
+                <option value="todos">Todos los Técnicos</option>
+                {tecnicos.map(t => (
+                  <option key={t.id} value={t.id}>{t.nombre}</option>
+                ))}
+              </select>
+            </div>
+
+            {(filterEstado !== 'todos' || filterTecnico !== 'todos') && (
+              <button 
+                onClick={() => { setFilterEstado('todos'); setFilterTecnico('todos'); }}
+                className="px-4 py-2 cursor-pointer text-red-500 hover:bg-red-50 rounded-lg text-sm font-medium transition"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Filtros */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-3">
-          <FaFilter className="hidden sm:block text-gray-600" />
-          <select
-            value={filterEstado}
-            onChange={(e) => setFilterEstado(e.target.value)}
-            className="flex-1 px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-          >
-            <option value="todos">Todos los Estados</option>
-            <option value="pendiente">Pendiente</option>
-            <option value="en-proceso">En Proceso</option>
-            <option value="completado">Completado</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
-
-          <select
-            value={filterTecnico}
-            onChange={(e) => setFilterTecnico(e.target.value)}
-            className="flex-1 px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-          >
-            <option value="todos">Todos los Técnicos</option>
-            {tecnicos.map(tecnico => (
-              <option key={tecnico.id} value={tecnico.id}>
-                {tecnico.nombre}
-              </option>
-            ))}
-          </select>
-
-          {(filterEstado !== 'todos' || filterTecnico !== 'todos') && (
-            <button
-              onClick={() => {
-                setFilterEstado('todos');
-                setFilterTecnico('todos');
-              }}
-              className="text-red-600 hover:text-red-700 font-medium flex items-center justify-center gap-1 px-3 py-2 border border-red-200 rounded-lg hover:bg-red-50 transition-colors text-sm md:text-base"
-            >
-              <FaTimes /> Limpiar
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Calendario */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="grid grid-cols-7 gap-px bg-gray-200">
-          {['D', 'L', 'M', 'X', 'J', 'V', 'S'].map((day, index) => (
-            <div key={day} className="bg-gray-50 p-2 md:p-4 text-center font-semibold text-gray-700">
-              <span className="hidden sm:inline">{['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'][index]}</span>
-              <span className="sm:hidden">{day}</span>
+        {/* Grilla del Calendario */}
+        <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
+          {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
+            <div key={day} className="py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
+              {day}
             </div>
           ))}
+        </div>
 
+        <div className="grid grid-cols-7 auto-rows-fr bg-gray-200 gap-px border-b border-gray-200">
+          {/* Celdas vacías del inicio del mes */}
           {[...Array(startingDayOfWeek)].map((_, index) => (
-            <div key={`empty-${index}`} className="bg-gray-50 p-2 md:p-4 min-h-[60px] md:min-h-[120px]" />
+            <div key={`empty-${index}`} className="bg-gray-50/50 min-h-[120px]" />
           ))}
 
+          {/* Días del mes */}
           {[...Array(daysInMonth)].map((_, index) => {
             const day = index + 1;
             const serviciosDay = getServiciosForDate(day);
             const isToday = new Date().getDate() === day && 
-                           new Date().getMonth() === currentDate.getMonth() &&
-                           new Date().getFullYear() === currentDate.getFullYear();
+                            new Date().getMonth() === currentDate.getMonth() &&
+                            new Date().getFullYear() === currentDate.getFullYear();
 
             return (
               <div
                 key={day}
                 onClick={() => handleDateClick(day)}
-                className={`bg-white p-1 md:p-4 min-h-[60px] md:min-h-[120px] cursor-pointer hover:bg-blue-50 transition-colors ${
-                  isToday ? 'bg-blue-50 ring-1 md:ring-2 ring-blue-600' : ''
-                }`}
+                className={`bg-white p-2 min-h-[120px] cursor-pointer hover:bg-blue-50 transition-colors relative group
+                  ${isToday ? 'bg-blue-50/30' : ''}`}
               >
-                <div className="flex justify-between items-center mb-1 md:mb-2">
-                  <span className={`text-xs md:text-sm font-semibold ${
-                    isToday ? 'bg-blue-600 text-white px-1 md:px-2 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs' : 'text-gray-700'
-                  }`}>
+                <div className="flex justify-between items-start mb-2">
+                  <span className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-bold
+                    ${isToday ? 'bg-blue-600 text-white shadow-md' : 'text-gray-700'}`}>
                     {day}
                   </span>
                   {serviciosDay.length > 0 && (
-                    <span className="text-[10px] md:text-xs bg-blue-600 text-white px-1 md:px-2 py-0.5 md:py-1 rounded-full font-bold">
+                    <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium border border-gray-200">
                       {serviciosDay.length}
                     </span>
                   )}
                 </div>
-                <div className="space-y-0.5 md:space-y-1">
-                  {serviciosDay.slice(0, window.innerWidth < 768 ? 1 : 2).map((servicio, idx) => (
-                    <div
+
+                <div className="space-y-1">
+                  {serviciosDay.slice(0, 3).map((servicio, idx) => (
+                    <div 
                       key={idx}
-                      className={`text-[9px] md:text-xs p-0.5 md:p-1 rounded truncate ${
-                        servicio.estado === 'completado' ? 'bg-green-100 text-green-800' :
-                        servicio.estado === 'en-proceso' ? 'bg-yellow-100 text-yellow-800' :
-                        servicio.estado === 'pendiente' ? 'bg-purple-100 text-purple-800' :
-                        'bg-red-100 text-red-800'
-                      }`}
-                      title={servicio.tipo}
+                      className={`text-[10px] px-1.5 py-0.5 rounded truncate font-medium border-l-2
+                        ${servicio.estado === 'completado' ? 'bg-green-50 text-green-700 border-green-500' :
+                          servicio.estado === 'en-proceso' ? 'bg-yellow-50 text-yellow-700 border-yellow-500' :
+                          servicio.estado === 'pendiente' ? 'bg-purple-50 text-purple-700 border-purple-500' :
+                          'bg-red-50 text-red-700 border-red-500'}`}
                     >
-                      <span className="hidden md:inline">{servicio.tipo}</span>
-                      <span className="md:hidden">•</span>
+                      {servicio.tipo}
                     </div>
                   ))}
-                  {serviciosDay.length > (window.innerWidth < 768 ? 1 : 2) && (
-                    <div className="text-[9px] md:text-xs text-gray-500 font-semibold">
-                      +{serviciosDay.length - (window.innerWidth < 768 ? 1 : 2)}
+                  {serviciosDay.length > 3 && (
+                    <div className="text-[10px] text-center text-gray-400 font-medium">
+                      +{serviciosDay.length - 3} más...
                     </div>
                   )}
                 </div>
@@ -299,134 +348,76 @@ function Calendario() {
         </div>
       </div>
 
-      {/* Leyenda - Responsive */}
-      <div className="bg-white rounded-xl shadow-md p-4 md:p-6 mt-4 md:mt-6">
-        <h4 className="font-semibold text-gray-800 mb-3 text-sm md:text-base">Leyenda de Estados:</h4>
-        <div className="grid grid-cols-2 md:flex md:flex-wrap gap-3 md:gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded"></div>
-            <span className="text-xs md:text-sm text-gray-700">Completado</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 md:w-4 md:h-4 bg-yellow-500 rounded"></div>
-            <span className="text-xs md:text-sm text-gray-700">En Proceso</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 md:w-4 md:h-4 bg-purple-500 rounded"></div>
-            <span className="text-xs md:text-sm text-gray-700">Pendiente</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 rounded"></div>
-            <span className="text-xs md:text-sm text-gray-700">Cancelado</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal - Responsive */}
+      {/* 3. Modal de Detalles del Día */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 md:p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto">
-            <div className="bg-linear-to-r from-blue-600 to-blue-700 p-4 md:p-6 text-white sticky top-0 z-10">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg md:text-2xl font-bold">
-                  <FaCalendarDay className="inline mr-2" />
-                  <span className="hidden sm:inline">
-                    {selectedDate?.toLocaleDateString('es-ES', { 
-                      weekday: 'long', 
-                      day: 'numeric', 
-                      month: 'long', 
-                      year: 'numeric' 
-                    })}
-                  </span>
-                  <span className="sm:hidden">
-                    {selectedDate?.toLocaleDateString('es-ES', { 
-                      day: 'numeric', 
-                      month: 'short'
-                    })}
-                  </span>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div className="bg-blue-600 p-6 text-white flex justify-between items-center shrink-0">
+              <div>
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <FaCalendarDay />
+                  {selectedDate?.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </h3>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="text-white hover:text-gray-200 text-2xl md:text-3xl font-bold cursor-pointer"
-                >
-                  ✕
-                </button>
+                <p className="text-blue-100 text-sm mt-1">
+                  {serviciosDelDia.length} servicios programados
+                </p>
               </div>
-              <p className="text-xs md:text-sm opacity-90 mt-2">
-                Total de servicios: <span className="font-bold">{serviciosDelDia.length}</span>
-              </p>
+              <button 
+                onClick={() => setShowModal(false)}
+                className="bg-white/10 hover:bg-white/20 cursor-pointer p-2 rounded-full transition text-white"
+              >
+                <FaTimes size={18}/>
+              </button>
             </div>
 
-            <div className="p-3 md:p-6">
+            <div className="p-6 overflow-y-auto bg-gray-50">
               {serviciosDelDia.length === 0 ? (
-                <div className="text-center py-8 md:py-12">
-                  <FaCalendarDay className="text-4xl md:text-6xl text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 text-sm md:text-lg">No hay servicios programados para este día</p>
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-2xl">
+                    <FaCalendarAlt />
+                  </div>
+                  <p className="text-gray-500 font-medium">No hay servicios para este día</p>
                 </div>
               ) : (
-                <div className="space-y-3 md:space-y-4">
+                <div className="space-y-4">
                   {serviciosDelDia.map((servicio) => (
                     <div 
                       key={servicio.id} 
-                      className={`rounded-lg p-3 md:p-5 shadow-md hover:shadow-lg transition-shadow ${getEstadoBadgeClass(servicio.estado)}`}
+                      className={`bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow ${getEstadoBadgeClass(servicio.estado)}`}
                     >
-                      <div className="flex flex-col sm:flex-row justify-between items-start gap-2 md:gap-3 mb-3">
-                        <div>
-                          <h4 className="font-bold text-gray-900 text-base md:text-xl mb-1">{servicio.tipo}</h4>
-                          <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${
-                            servicio.estado === 'completado' ? 'bg-green-600 text-white' :
-                            servicio.estado === 'en-proceso' ? 'bg-yellow-500 text-white' :
-                            servicio.estado === 'pendiente' ? 'bg-purple-600 text-white' :
-                            'bg-red-600 text-white'
-                          }`}>
-                            {getEstadoTexto(servicio.estado)}
-                          </span>
-                        </div>
-                        <div className="text-left sm:text-right">
-                          <p className="text-xl md:text-2xl font-bold text-gray-900">{servicio.hora}</p>
-                        </div>
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-bold text-gray-800 text-lg">{servicio.tipo}</h4>
+                        <span className="text-lg font-bold text-gray-600">{servicio.hora}</span>
+                      </div>
+                      
+                      <div className="space-y-1 text-sm text-gray-600 mb-3">
+                        <p><strong className="text-gray-800">Cliente:</strong> {servicio.clientes?.nombre || 'N/A'}</p>
+                        <p><strong className="text-gray-800">Técnico:</strong> {servicio.tecnicos?.nombre || 'Sin asignar'}</p>
+                        {servicio.descripcion && (
+                          <p className="italic bg-gray-50 p-2 rounded mt-2 text-xs border border-gray-100">
+                            "{servicio.descripcion}"
+                          </p>
+                        )}
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 text-xs md:text-sm mt-3 md:mt-4">
-                        <div className="bg-white bg-opacity-60 p-2 md:p-3 rounded">
-                          <p className="text-gray-600 font-semibold mb-1">Cliente:</p>
-                          <p className="text-gray-900 font-bold truncate">{servicio.clientes?.nombre || 'Sin cliente'}</p>
-                        </div>
-                        <div className="bg-white bg-opacity-60 p-2 md:p-3 rounded">
-                          <p className="text-gray-600 font-semibold mb-1">Sede:</p>
-                          <p className="text-gray-900 font-bold truncate">{servicio.sedes?.nombre || 'Sin sede'}</p>
-                        </div>
-                        <div className="bg-white bg-opacity-60 p-2 md:p-3 rounded">
-                          <p className="text-gray-600 font-semibold mb-1">Técnico:</p>
-                          <p className="text-gray-900 font-bold truncate">{servicio.tecnicos?.nombre || 'Sin asignar'}</p>
-                        </div>
-                        <div className="bg-white bg-opacity-60 p-2 md:p-3 rounded">
-                          <p className="text-gray-600 font-semibold mb-1">Equipo:</p>
-                          <p className="text-gray-900 font-bold truncate">{servicio.equipo || 'No especificado'}</p>
-                        </div>
-                      </div>
-
-                      {servicio.descripcion && (
-                        <div className="mt-3 md:mt-4 bg-white bg-opacity-60 p-2 md:p-3 rounded">
-                          <p className="text-gray-600 font-semibold mb-1 text-xs md:text-sm">Descripción:</p>
-                          <p className="text-gray-900 text-xs md:text-sm">{servicio.descripcion}</p>
-                        </div>
-                      )}
-                      <div className="mt-4 flex justify-end gap-4">
-                        <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded cursor-pointer">
-                          Realizado
-                        </button>
-                        <button className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded cursor-pointer">
-                          Denegado
-                        </button>
-                        <button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2 px-4 rounded cursor-pointer">
-                          Posponer
-                        </button>
+                      <div className="flex justify-end pt-2 border-t border-gray-100">
+                        <span className={`text-xs font-bold px-2 py-1 rounded uppercase tracking-wide
+                          ${servicio.estado === 'completado' ? 'text-green-600 bg-green-100' :
+                            servicio.estado === 'en-proceso' ? 'text-yellow-600 bg-yellow-100' :
+                            'text-purple-600 bg-purple-100'}`}>
+                          {getEstadoTexto(servicio.estado)}
+                        </span>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
+            </div>
+            <div className="p-4 flex justify-end gap-3">
+              <button className="bg-green-600 text-white px-4 py-2 rounded mr-2 cursor-pointer hover:bg-green-700" onClick={() => alert('Aceptar')}>Aceptar</button>
+              <button className="bg-yellow-500 text-white px-4 py-2 rounded mr-2 cursor-pointer hover:bg-yellow-600" onClick={() => alert('En Proceso')}>En Proceso </button>
+              <button className="bg-purple-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-purple-600" onClick={() => alert('Pendiente')}>Pendiente</button>
             </div>
           </div>
         </div>

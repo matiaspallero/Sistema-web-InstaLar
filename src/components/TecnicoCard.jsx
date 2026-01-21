@@ -19,7 +19,7 @@ function TecnicoCard({ tecnico, onEdit, onDelete }) {
           </div>
           <span className={`w-4 h-4 rounded-full ${getEstadoBadge(tecnico.estado)}`}></span>
         </div>
-        <h3 className="text-xl font-bold">{tecnico.nombre}</h3>
+        <h2 className="text-xl font-bold">{tecnico.nombre} {tecnico.apellido}</h2>
         <p className="text-sm opacity-90 mt-1">{tecnico.especialidad}</p>
       </div>
 
@@ -54,13 +54,13 @@ function TecnicoCard({ tecnico, onEdit, onDelete }) {
         <div className="flex gap-2 pt-4">
           <button 
             onClick={onEdit}
-            className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 cursor-pointer py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             <FaEdit /> Editar
           </button>
           <button 
             onClick={onDelete}
-            className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 cursor-pointer py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             <FaTrash /> Eliminar
           </button>

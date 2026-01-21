@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaPlus, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaMapMarkerAlt, FaSave, FaTimes, FaBuilding, FaCity } from 'react-icons/fa';
 import SedeCard from '../components/SedeCard';
 import { api } from '../services/api';
 
@@ -30,11 +30,17 @@ function Sedes() {
         api.sedes.getAll(),
         api.clientes.getAll()
       ]);
-      setSedes(sedesData);
-      setClientes(clientesData);
+
+      const listaSedes = Array.isArray(sedesData) ? sedesData : (sedesData.data || []);
+      const listaClientes = Array.isArray(clientesData) ? clientesData : (clientesData.data || []);
+
+      setSedes(listaSedes);
+      setClientes(listaClientes);
     } catch (error) {
       console.error('Error al cargar datos:', error);
       alert('Error al cargar los datos');
+      setSedes([]);
+      setClientes([]);
     } finally {
       setLoading(false);
     }
@@ -77,16 +83,20 @@ function Sedes() {
     try {
       if (editingSede) {
         const updated = await api.sedes.update(editingSede.id, formData);
-        setSedes(sedes.map(s => s.id === editingSede.id ? updated : s));
+        // Ajuste por si updated viene con { data: ... }
+        const updatedData = updated.data || updated;
+        setSedes(sedes.map(s => s.id === editingSede.id ? updatedData : s));
         alert('Sede actualizada correctamente');
       } else {
         const newSede = await api.sedes.create(formData);
-        setSedes([...sedes, newSede]);
+        // Ajuste por si newSede viene con { data: ... }
+        const newSedeData = newSede.data || newSede;
+        setSedes([...sedes, newSedeData]);
         alert('Sede creada correctamente');
       }
       
       handleCloseModal();
-      cargarDatos();
+      cargarDatos(); // Recargar para asegurar relaciones
     } catch (error) {
       console.error('Error al guardar sede:', error);
       alert('Error al guardar la sede');
@@ -115,37 +125,52 @@ function Sedes() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">Gestión de Sedes</h2>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors shadow-md cursor-pointer"
-        >
-          <FaPlus /> Nueva Sede
-        </button>
+    <div className="space-y-6 animate-fade-in">
+      
+      {/* Header Estilizado */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <FaMapMarkerAlt className="text-red-500" /> Gestión de Sedes
+          </h2>
+          <p className="text-gray-500 text-sm">Administra las ubicaciones de tus clientes</p>
+        </div>
+        
+        <div className="flex w-full md:w-auto gap-3">
+          <button 
+            onClick={() => setShowModal(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition flex items-center gap-2 whitespace-nowrap cursor-pointer shadow-md shadow-blue-200"
+          >
+            <FaPlus size={20}/> Nueva Sede
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-        <div className="relative">
+      {/* Barra de Búsqueda */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <div className="relative w-full">
           <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Buscar sedes por nombre o cliente..."
+            placeholder="Buscar por nombre, dirección o cliente..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      {/* Grid de Tarjetas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSedes.map((sede) => (
           <SedeCard 
             key={sede.id} 
             sede={{
               ...sede,
-              cliente: sede.clientes?.nombre || 'Sin cliente'
+              // Adaptador visual para que la card no se rompa
+              cliente: sede.clientes?.nombre || 'Sin cliente',
+              proximoMantenimiento: 'Pendiente', 
+              ultimoMantenimiento: sede.updated_at ? new Date(sede.updated_at).toLocaleDateString() : '-'
             }}
             onEdit={() => handleEdit(sede)}
             onDelete={() => handleDelete(sede.id)}
@@ -153,72 +178,92 @@ function Sedes() {
         ))}
       </div>
 
+      {/* Estado Vacío */}
       {filteredSedes.length === 0 && (
-        <div className="bg-white rounded-xl shadow-md text-center py-12">
-          <p className="text-gray-500 text-lg">No se encontraron sedes</p>
+        <div className="text-center py-12 bg-white rounded-xl border border-gray-100 shadow-sm">
+          <FaBuilding className="mx-auto text-4xl text-gray-300 mb-4" />
+          <h3 className="text-lg font-medium text-gray-500">No se encontraron sedes</h3>
+          <p className="text-sm text-gray-400">Intenta ajustar la búsqueda o agrega una nueva ubicación.</p>
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal Profesional */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="bg-linear-to-r from-indigo-600 to-purple-700 p-6 text-white">
-              <h3 className="text-2xl font-bold">
-                {editingSede ? 'Editar Sede' : 'Nueva Sede'}
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            {/* Header del Modal */}
+            <div className="bg-blue-600 p-4 md:p-6 text-white flex justify-between items-center shrink-0">
+              <h3 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+                {editingSede ? <><FaMapMarkerAlt /> Editar Sede</> : <><FaPlus /> Nueva Sede</>}
               </h3>
+              <button 
+                onClick={handleCloseModal}
+                className="text-white/80 hover:text-white transition cursor-pointer p-1 rounded-full hover:bg-white/10"
+              >
+                <FaTimes size={20} />
+              </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {/* Formulario */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+              
+              {/* Fila 1: Nombre y Cliente */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Nombre de la Sede *
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Nombre del lugar *
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.nombre}
                     onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Sede Central"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    placeholder="Ej: Oficina Central"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Cliente *
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Cliente Asociado *
                   </label>
                   <select
                     required
                     value={formData.cliente_id}
                     onChange={(e) => setFormData({...formData, cliente_id: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                   >
-                    <option value="">Seleccione un cliente</option>
-                    {clientes.map(cliente => (
+                    <option value="">Seleccione un cliente...</option>
+                    {Array.isArray(clientes) && clientes.map(cliente => (
                       <option key={cliente.id} value={cliente.id}>
                         {cliente.nombre}
                       </option>
                     ))}
                   </select>
                 </div>
+              </div>
 
+              {/* Fila 2: Ciudad y Equipos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
                     Ciudad
                   </label>
-                  <input
-                    type="text"
-                    value={formData.ciudad}
-                    onChange={(e) => setFormData({...formData, ciudad: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Lima"
-                  />
+                  <div className="relative">
+                    <FaCity className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      value={formData.ciudad}
+                      onChange={(e) => setFormData({...formData, ciudad: e.target.value})}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ej: San Miguel"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
                     Cantidad de Equipos
                   </label>
                   <input
@@ -229,49 +274,52 @@ function Sedes() {
                     placeholder="0"
                   />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Estado
-                  </label>
-                  <select
-                    value={formData.estado}
-                    onChange={(e) => setFormData({...formData, estado: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="activo">Activo</option>
-                    <option value="mantenimiento-pendiente">Mantenimiento Pendiente</option>
-                    <option value="inactivo">Inactivo</option>
-                  </select>
-                </div>
               </div>
 
+              {/* Estado */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Dirección
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Estado Operativo
+                </label>
+                <select
+                  value={formData.estado}
+                  onChange={(e) => setFormData({...formData, estado: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                >
+                  <option value="activo">🟢 Activo</option>
+                  <option value="mantenimiento-pendiente">🟡 Mantenimiento Pendiente</option>
+                  <option value="inactivo">🔴 Inactivo</option>
+                </select>
+              </div>
+
+              {/* Dirección */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Dirección Completa
                 </label>
                 <textarea
                   value={formData.direccion}
                   onChange={(e) => setFormData({...formData, direccion: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   rows="3"
-                  placeholder="Av. Principal 123, Piso 3"
+                  placeholder="Calle, Número, Piso, Referencias..."
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
+              {/* Botones */}
+              <div className="flex gap-3 pt-4 border-t border-gray-100 mt-2">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
+                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer"
+                  className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold cursor-pointer shadow-lg shadow-blue-200 flex justify-center items-center gap-2"
                 >
-                  {editingSede ? 'Actualizar' : 'Crear'}
+                  <FaSave /> {editingSede ? 'Guardar Cambios' : 'Registrar Sede'}
                 </button>
               </div>
             </form>

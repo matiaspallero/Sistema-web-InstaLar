@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // <--- IMPORTANTE
 import { 
   FaHome, 
   FaUsers, 
@@ -7,105 +8,191 @@ import {
   FaBuilding, 
   FaCalendarAlt, 
   FaChartBar,
-  FaBars // Importamos la hamburguesa
+  FaBars,
+  FaInbox,
+  FaWrench
 } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
 
-// Recibe 'isOpen' y 'onToggle' desde AppContent
 function Sidebar({ isOpen, onToggle }) {
-  const { user, hasPermission } = useAuth();
   const location = useLocation();
+  const { user } = useAuth(); // Obtenemos el usuario para saber su rol
 
-  const menuItems = [
-    { path: '/', icon: FaHome, label: 'Dashboard', permission: 'dashboard.view' },
-    { path: '/clientes', icon: FaUsers, label: 'Clientes', permission: 'clientes.view' },
-    { path: '/servicios', icon: FaTools, label: 'Servicios', permission: 'servicios.view' },
-    { path: '/tecnicos', icon: FaUserTie, label: 'Técnicos', permission: 'tecnicos.view' },
-    { path: '/sedes', icon: FaBuilding, label: 'Sedes', permission: 'sedes.view' },
-    { path: '/calendario', icon: FaCalendarAlt, label: 'Calendario', permission: 'calendario.view' },
-    { path: '/reportes', icon: FaChartBar, label: 'Reportes', permission: 'reportes.view' }
+  // Definimos todos los ítems y QUÉ ROLES pueden verlos
+  const allMenuItems = [
+    // 1. DASHBOARD PRINCIPAL (admin/tecnico)
+    { 
+      path: '/dashboard', 
+      icon: FaHome, 
+      label: 'Dashboard', 
+      roles: ['admin', 'tecnico']
+    },
+    // 2. DASHBOARD CLIENTE (cliente)
+    {
+      path: '/clienteDashboard',
+      icon: FaUsers,
+      label: 'Clientes Dashboard',
+      roles: ['cliente']
+    },
+    // 3. GESTIÓN DE SOLICITUDES (admin/tecnicos)
+    { 
+      path: '/solicitudes', 
+      icon: FaInbox, 
+      label: 'Solicitudes', 
+      roles: ['admin']
+    },
+    // 4. GESTIÓN (admin/tecnico)
+    { 
+      path: '/clientes', 
+      icon: FaUsers, 
+      label: 'Clientes', 
+      roles: ['admin', 'tecnico']
+    },
+    // 5. MIS TRABAJOS (tecnico)
+    {
+      path: '/misTrabajos',
+      icon: FaWrench,
+      label: 'Mis Trabajos',
+      roles: ['tecnico']
+    },
+    // 6. GESTIÓN DE SERVICIOS (admin/tecnico)
+    { 
+      path: '/servicios', 
+      icon: FaTools, 
+      label: 'Servicios', 
+      roles: ['admin', 'tecnico']
+    },
+    // 7. GESTIÓN DE TÉCNICOS (admin)
+    { 
+      path: '/tecnicos', 
+      icon: FaUserTie, 
+      label: 'Técnicos', 
+      roles: ['admin']
+    },
+    // 8. GESTIÓN DE SEDES (admin)
+    { 
+      path: '/sedes', 
+      icon: FaBuilding, 
+      label: 'Sedes', 
+      roles: ['admin']
+    },
+    // 9. MIS SEDES (cliente)
+    {
+      path: '/misSedes', 
+      icon: FaBuilding, 
+      label: 'Mis Sedes', 
+      roles: ['cliente']
+    },
+    // 10. CALENDARIO (admin/tecnico)
+    { 
+      path: '/calendario', 
+      icon: FaCalendarAlt, 
+      label: 'Calendario', 
+      roles: ['admin', 'tecnico']
+    },
+    // 11. REPORTES GLOBALES (admin)
+    { 
+      path: '/reportes', 
+      icon: FaChartBar, 
+      label: 'Reportes', 
+      roles: ['admin']
+    },
   ];
 
-  const visibleMenuItems = menuItems.filter(item => hasPermission(item.permission));
+  // Filtramos el menú según el rol del usuario actual
+  const menuItems = allMenuItems.filter(item => 
+    user?.rol && item.roles.includes(user.rol)
+  );
 
   return (
     <>
+      <div 
+        className={`fixed inset-0 bg-black/50 z-20 md:hidden transition-opacity duration-300 ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={onToggle}
+      />
+
       <aside 
         className={`
           bg-linear-to-b from-gray-800 to-gray-900 text-white shadow-2xl
-          h-screen shrink-0 transition-all duration-300 ease-in-out
-          ${isOpen ? 'w-64' : 'w-20'}
+          h-full flex flex-col shrink-0 transition-all duration-300 ease-in-out
+          ${isOpen ? 'w-64 translate-x-0' : 'w-20 -translate-x-full md:translate-x-0'}
+          fixed md:relative z-30
         `}
       >
-        {/* Encabezado del Sidebar */}
-        <div 
-          className={`
-            border-b border-gray-700 flex items-center justify-between
-            transition-all duration-300
-            ${isOpen ? 'p-5' : 'py-5 px-3'} 
-          `}
-        >
-          {/* Muestra el logo (grande o pequeño) */}
-          {isOpen ? (
-            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-500 whitespace-nowrap">
-              InstaLar
-            </h1>
-          ) : (
-            <img 
-              src="/logo.png" 
-              alt="InstaLar Logo" 
-              className="w-8 h-8 object-contain" // Logo más pequeño (w-8)
-            />
-          )}
-          
-          {/* Botón de hamburguesa con padding condicional */}
+        <div className={`flex items-center p-4 border-b border-gray-700 shrink-0 h-20 ${isOpen ? 'justify-between' : 'justify-center'}`}>
+          <div className={`flex items-center gap-3 overflow-hidden transition-all duration-300 ${!isOpen ? 'w-0 opacity-0 hidden' : 'w-auto opacity-100'}`}>
+            <div className="bg-blue-600 p-2 rounded-lg shrink-0">
+              <span className="font-bold text-xl">IL</span>
+            </div>
+            <span className="font-bold text-lg whitespace-nowrap">InstaLar</span>
+          </div>
+
           <button 
-            onClick={onToggle} 
+            onClick={onToggle}
             className={`
-              text-gray-400 hover:text-white rounded-lg hover:bg-gray-700
-              ${isOpen ? 'p-2' : 'p-1'}
+              rounded-lg cursor-pointer transition-all duration-200
+              flex flex-col items-center justify-center gap-1
+              ${isOpen 
+                ? 'p-2 hover:bg-gray-700 text-gray-300 hover:text-white' 
+                : 'w-full h-full hover:bg-blue-500/10 hover:text-blue-400 group' 
+              } 
             `}
           >
-            <FaBars className="text-xl" />
+            {isOpen ? (
+              <FaBars className="text-xl" />
+            ) : (
+              <>
+                <img 
+                  src="/logo.png" 
+                  alt="Logo" 
+                  className="w-8 h-8 object-contain mb-1 transition-transform duration-200 group-hover:scale-110" 
+                />
+                <FaBars className="text-lg transition-colors" />
+              </>
+            )}
           </button>
         </div>
 
-        {/* Menú de navegación */}
-        <nav className="mt-6 overflow-y-auto h-[calc(100vh-85px)] pb-6">
-          {visibleMenuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+        <nav className="flex-1 overflow-y-auto py-4 overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
+          <ul className="space-y-1">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
 
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`
-                  flex items-center gap-4 py-4 transition-all
-                  ${isActive 
-                    ? 'bg-linear-to-r from-blue-600 to-blue-700 border-l-4 border-blue-400 shadow-lg' 
-                    : 'hover:bg-gray-700 border-l-4 border-transparent'
-                  }
-                  ${isOpen ? 'px-6' : 'justify-center px-3'}
-                `}
-                title={!isOpen ? item.label : ''}
-              >
-                <Icon 
-                  className={`
-                    text-xl shrink-0 
-                    ${isActive ? 'text-blue-200' : 'text-gray-400'}
-                  `} 
-                />
-                
-                {isOpen && (
-                  <span className={`font-medium whitespace-nowrap ${isActive ? 'text-white' : 'text-gray-300'}`}>
-                    {item.label}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+              return (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className={`
+                      flex items-center gap-4 py-3 px-4 transition-all border-l-4
+                      ${isActive 
+                        ? 'bg-linear-to-r from-blue-600/20 to-transparent border-blue-500 text-blue-400' 
+                        : 'border-transparent text-gray-400 hover:bg-gray-800 hover:text-white'
+                      }
+                      ${!isOpen && 'justify-center px-2'}
+                    `}
+                    title={!isOpen ? item.label : ''}
+                  >
+                    <Icon className={`text-xl shrink-0 ${isActive ? 'text-blue-400' : ''}`} />
+                    
+                    <span className={`font-medium whitespace-nowrap transition-all duration-300 ${
+                      !isOpen ? 'w-0 opacity-0 overflow-hidden' : 'w-auto opacity-100'
+                    }`}>
+                      {item.label}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </nav>
+
+        <div className="p-4 border-t border-gray-700 shrink-0">
+          <div className={`text-xs text-center text-gray-500 transition-all duration-300 ${!isOpen && 'opacity-0'}`}>
+            <p>Rol: <span className="text-blue-400 capitalize">{user?.rol}</span></p>
+          </div>
+        </div>
       </aside>
     </>
   );
