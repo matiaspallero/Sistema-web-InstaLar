@@ -232,12 +232,12 @@ const TecAtencionModal = ({ servicio, onClose, onSuccess }) => {
         {activeTab === 'detalles' && (
             <div className="p-4 border-t border-gray-100 bg-gray-50">
                 {servicio.estado === 'pendiente' && (
-                    <button onClick={() => cambiarEstado('en-proceso')} disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 flex justify-center gap-2 shadow-lg">
+                    <button onClick={() => cambiarEstado('en-proceso')} disabled={loading} className="w-full cursor-pointer bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 flex justify-center gap-2 shadow-lg">
                         {loading ? '...' : <><FaPlay /> Iniciar Tarea</>}
                     </button>
                 )}
                 {servicio.estado === 'en-proceso' && (
-                    <button onClick={() => cambiarEstado('completado')} disabled={loading} className="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 flex justify-center gap-2 shadow-lg">
+                    <button onClick={() => cambiarEstado('completado')} disabled={loading} className="w-full cursor-pointer bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 flex justify-center gap-2 shadow-lg">
                         {loading ? 'Guardando...' : <><FaCheckCircle /> Finalizar Tarea</>}
                     </button>
                 )}

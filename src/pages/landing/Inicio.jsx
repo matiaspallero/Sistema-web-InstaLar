@@ -4,482 +4,477 @@ import {
   Wind,
   Shield,
   Clock,
-  Phone,
-  Mail,
-  MapPin,
-  CheckCircle,
-  Star,
   Menu,
   X,
+  PlayCircle,
+  Smartphone,
+  CheckCircle,
+  ArrowRight,
+  MapPin,
+  User,
+  Activity,
+  Facebook,
+  Instagram,
+  Send,
+  Mail
 } from "lucide-react";
 
 const Inicio = () => {
   const [menuAbierto, setMenuAbierto] = useState(false);
 
+
   const servicios = [
     {
-      icono: <Wind className="w-12 h-12 text-blue-500" />,
+      icono: <Wind className="w-12 h-12" />,
       titulo: "Mantenimiento Preventivo",
-      descripcion:
-        "Inspecciones periódicas para garantizar el óptimo funcionamiento de tus equipos de aire acondicionado.",
+      descripcion: "Inspecciones periódicas para garantizar el óptimo funcionamiento y aire limpio.",
     },
     {
-      icono: <Shield className="w-12 h-12 text-blue-500" />,
-      titulo: "Reparación y Diagnóstico",
-      descripcion:
-        "Técnicos certificados para resolver cualquier falla en tu sistema de climatización rápidamente.",
+      icono: <Shield className="w-12 h-12" />,
+      titulo: "Reparación Certificada",
+      descripcion: "Diagnóstico preciso y repuestos originales con garantía de servicio.",
     },
     {
-      icono: <Clock className="w-12 h-12 text-blue-500" />,
-      titulo: "Servicio 24/7",
-      descripcion:
-        "Disponibilidad inmediata para emergencias. Tu comodidad es nuestra prioridad en todo momento.",
-    },
-  ];
-
-  const testimonios = [
-    {
-      nombre: "María González",
-      empresa: "Corporación XYZ",
-      comentario:
-        "Excelente servicio, muy profesionales y puntuales. Nuestros equipos funcionan perfectamente.",
-      rating: 5,
-    },
-    {
-      nombre: "Carlos Ramírez",
-      empresa: "Hotel Paradise",
-      comentario:
-        "El mejor servicio de mantenimiento. Responden rápido y solucionan todo eficientemente.",
-      rating: 5,
-    },
-    {
-      nombre: "Ana Martínez",
-      empresa: "Centro Comercial Plaza",
-      comentario:
-        "Confiables y con precios justos. Llevan años manteniendo nuestros sistemas.",
-      rating: 5,
+      icono: <Clock className="w-12 h-12" />,
+      titulo: "Urgencias 24/7",
+      descripcion: "Respuesta inmediata para equipos críticos en servidores o comercios.",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white scroll-smooth">
-      {/* Navbar */}
-      <nav className="fixed w-full bg-white shadow-md z-50">
+    <div className="min-h-screen bg-white font-sans overflow-x-hidden">
+      
+      {/* --- NAVBAR --- */}
+      <nav className="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Wind className="w-8 h-8 text-blue-600" />
-              <span className="ml-2 text-2xl font-bold text-gray-800">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
+              <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-200">
+                <Wind className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold text-gray-800 tracking-tight">
                 InstaLar
               </span>
             </div>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a
-                href="#inicio"
-                className="text-gray-700 hover:text-blue-600 transition"
-              >
-                Inicio
-              </a>
-              <a
-                href="#servicios"
-                className="text-gray-700 hover:text-blue-600 transition"
-              >
-                Servicios
-              </a>
-              <a
-                href="#nosotros"
-                className="text-gray-700 hover:text-blue-600 transition"
-              >
-                Nosotros
-              </a>
-              <a
-                href="#testimonios"
-                className="text-gray-700 hover:text-blue-600 transition"
-              >
-                Testimonios
-              </a>
-              <a
-                href="#contacto"
-                className="text-gray-700 hover:text-blue-600 transition"
-              >
-                Contacto
-              </a>
+            <div className="hidden md:flex items-center space-x-8 font-medium text-md">
+              <a href="#inicio" className="text-gray-600 hover:text-blue-600 transition">Inicio</a>
+              <a href="#servicios" className="text-gray-600 hover:text-blue-600 transition">Servicios</a>
+              <a href="#tecnologia" className="text-gray-600 hover:text-blue-600 transition">Tecnología</a>
+              <a href="#cotizar" className="text-gray-600 hover:text-blue-600 transition">Cotizar</a>
             </div>
 
-            <div className="hidden md:block">
-              <Link to="/Login" className="mr-4 text-gray-700 hover:text-blue-600 px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition">
-                Iniciar Sesión
+            <div className="hidden md:flex items-center gap-4">
+              <Link to="/login" className="text-gray-700 font-bold hover:text-blue-600 transition text-sm">
+                Soy Cliente
               </Link>
-              <Link to="/Register" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-                Solicitar Servicio
+              <Link to="/register" className="bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 hover:scale-105 transition-all text-sm flex items-center gap-2">
+                Empezar Ahora <ArrowRight size={16} />
               </Link>
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden"
-              onClick={() => setMenuAbierto(!menuAbierto)}
-            >
-              {menuAbierto ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
+            <button className="md:hidden p-2 text-gray-600" onClick={() => setMenuAbierto(!menuAbierto)}>
+              {menuAbierto ? <X /> : <Menu />}
             </button>
           </div>
-
-          {/* Mobile Menu */}
-          {menuAbierto && (
-            <div className="md:hidden pb-4">
-              <a
-                href="#inicio"
-                className="block py-2 text-gray-700 hover:text-blue-600"
-              >
-                Inicio
-              </a>
-              <a
-                href="#servicios"
-                className="block py-2 text-gray-700 hover:text-blue-600"
-              >
-                Servicios
-              </a>
-              <a
-                href="#nosotros"
-                className="block py-2 text-gray-700 hover:text-blue-600"
-              >
-                Nosotros
-              </a>
-              <a
-                href="#testimonios"
-                className="block py-2 text-gray-700 hover:text-blue-600"
-              >
-                Testimonios
-              </a>
-              <a
-                href="#contacto"
-                className="block py-2 text-gray-700 hover:text-blue-600"
-              >
-                Contacto
-              </a>
-              <button className="w-full mt-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                Solicitar Servicio
-              </button>
-            </div>
-          )}
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section
-        id="inicio"
-        className="pt-24 pb-20 bg-linear-to-br from-blue-50 to-blue-100"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-5xl font-bold text-gray-900 mb-6">
-                Mantenimiento Profesional de Aire Acondicionado
-              </h1>
-              <p className="text-xl text-gray-600 mb-8">
-                Expertos en climatización con más de 15 años de experiencia.
-                Mantén tus espacios frescos y confortables todo el año.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition shadow-lg">
-                  Agendar Cita
-                </button>
-                <button className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition border-2 border-blue-600">
-                  Ver Servicios
-                </button>
-              </div>
-              <div className="mt-8 flex items-center gap-8">
-                <div>
-                  <p className="text-3xl font-bold text-blue-600">500+</p>
-                  <p className="text-gray-600">Clientes Satisfechos</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-blue-600">15+</p>
-                  <p className="text-gray-600">Años de Experiencia</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-blue-600">24/7</p>
-                  <p className="text-gray-600">Servicio Disponible</p>
-                </div>
-              </div>
+      {/* --- HERO SECTION (VIDEO) --- */}
+      <section id="inicio" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        
+        {/* 1. Video de Fondo */}
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover z-0"
+        >
+          {/* Video abstracto azul (Representa flujo de aire/limpieza) */}
+          <source src="https://cdn.pixabay.com/video/2019/04/23/23011-332483109_large.mp4" type="video/mp4" />
+        </video>
+
+        {/* 2. Capa Oscura (Overlay) para que se lea el texto */}
+        <div className="absolute inset-0 bg-linear-to-r from-blue-900/80 via-blue-800/60 to-transparent z-10"></div>
+
+        {/* 3. Contenido Principal */}
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
+          
+          {/* Tarjeta de Cristal (Glassmorphism) */}
+          <div className="backdrop-blur-md bg-white/20 border border-white/20 p-8 md:p-10 rounded-3xl shadow-2xl animate-fade-in-up">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 border border-blue-200 text-blue-700 text-sm font-bold backdrop-blur-sm">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+              </span>
+              Disponible en tu zona
             </div>
-            <div className="hidden md:block">
-              <div className="bg-linear-to-br from-blue-400 to-blue-600 rounded-2xl shadow-2xl p-8 aspect-square flex items-center justify-center">
-                <Wind className="w-64 h-64 text-white opacity-20" />
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+              Expertos en <br/>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-200 to-white">
+                Aire Fresco
+              </span>
+            </h1>
+            
+            <p className="text-lg text-blue-100 mb-8 leading-relaxed">
+              Más de 15 años garantizando el confort de tu hogar y empresa. 
+              Tecnología de punta, respuesta inmediata y técnicos certificados.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button className="bg-white text-blue-900 cursor-pointer px-8 py-4 rounded-xl text-lg font-bold hover:bg-blue-50 transition shadow-lg flex items-center justify-center gap-2 group">
+                Agendar Cita <Wind className="w-5 h-5 group-hover:rotate-10 transition-transform"/>
+              </button>
+              <button className="px-8 py-4 cursor-pointer rounded-xl text-lg font-bold text-white border border-white/30 hover:bg-white/10 transition flex items-center justify-center gap-2">
+                <PlayCircle className="w-5 h-5" /> Ver Servicios
+              </button>
+            </div>
+
+            {/* Datos Rápidos */}
+            <div className="mt-10 pt-8 border-t border-white/10 flex items-center justify-between gap-4 text-white/80">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white">500+</p>
+                <p className="text-xs uppercase tracking-wider">Clientes</p>
+              </div>
+              <div className="w-px h-10 bg-white/20"></div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white">24/7</p>
+                <p className="text-xs uppercase tracking-wider">Soporte</p>
+              </div>
+              <div className="w-px h-10 bg-white/20"></div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white">100%</p>
+                <p className="text-xs uppercase tracking-wider">Garantía</p>
               </div>
             </div>
           </div>
+
+          {/* Espacio vacío para equilibrar el grid (el video llena el fondo) */}
+          <div className="hidden md:block"></div>
+
         </div>
       </section>
 
-      {/* Servicios Section */}
-      <section id="servicios" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Nuestros Servicios
+      {/* --- SERVICIOS --- */}
+      <section id="servicios" className="py-24 bg-blue-900 relative overflow-hidden">
+        
+        {/* Decoración de Fondo (Blobs ajustados para fondo oscuro) */}
+        {/* Usamos colores que resalten sobre el azul oscuro pero sutilmente */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px] translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px] -translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            {/* Títulos ahora en blanco/claro para contrastar con el fondo azul */}
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+              Soluciones Integrales
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Ofrecemos soluciones completas para el mantenimiento y reparación
-              de sistemas de climatización
+            <p className="text-xl text-blue-100 leading-relaxed">
+              Diseñamos estrategias de climatización personalizadas para maximizar el confort y la eficiencia energética.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {servicios.map((servicio, index) => (
-              <div
-                key={index}
-                className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition border border-gray-100"
+              <div 
+                key={index} 
+                className="group relative p-8 rounded-3xl bg-white border border-transparent shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col"
               >
-                <div className="mb-4">{servicio.icono}</div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                {/* Icono */}
+                <div className="mb-6 w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm group-hover:bg-blue-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+                  {servicio.icono}
+                </div>
+
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
                   {servicio.titulo}
                 </h3>
-                <p className="text-gray-600 mb-4">{servicio.descripcion}</p>
-                <a
-                  href="#contacto"
-                  className="text-blue-600 font-semibold hover:text-blue-700 inline-flex items-center"
-                >
-                  Más información →
-                </a>
+                
+                <p className="text-gray-500 leading-relaxed mb-8 flex-1">
+                  {servicio.descripcion}
+                </p>
+
+                {/* Link de acción */}
+                <div className="mt-auto flex items-center text-blue-600 font-bold text-sm group-hover:gap-2 transition-all cursor-pointer">
+                  Solicitar este servicio <ArrowRight className="w-4 h-4 ml-2" />
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Por qué elegirnos */}
-      <section id="nosotros" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+      {/* --- NUEVO: RASTREO EN TIEMPO REAL (PUNTO 2) --- */}
+      <section id="tecnologia" className="py-24 bg-gray-900 text-white overflow-hidden relative">
+        {/* Fondo decorativo */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600 rounded-full blur-[120px] opacity-20 -translate-y-1/2 translate-x-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-600 rounded-full blur-[100px] opacity-20 translate-y-1/3 -translate-x-1/3"></div>
+
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            
+            {/* Texto */}
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                ¿Por Qué Elegirnos?
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-800 border border-gray-700 text-blue-400 text-xs font-bold uppercase tracking-wider mb-6">
+                <Smartphone size={14} /> App para Clientes
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+                Olvídate de llamar. <br/>
+                <span className="text-blue-400">Controla todo online.</span>
               </h2>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <CheckCircle className="w-6 h-6 text-green-500 shrink-0 mt-1" />
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Técnicos Certificados
-                    </h3>
-                    <p className="text-gray-600">
-                      Personal altamente capacitado y con certificaciones
-                      internacionales
-                    </p>
+              <p className="text-gray-400 text-lg mb-8 leading-relaxed">
+                Con nuestra plataforma, sabes exactamente cuándo llega tu técnico, ves fotos del trabajo realizado y accedes a tu historial de mantenimiento al instante.
+              </p>
+              
+              <ul className="space-y-4 mb-8">
+                {[
+                  "Seguimiento de estado en tiempo real",
+                  "Historial digital de reparaciones",
+                  "Fotos de antes y después",
+                  "Facturación automática"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-300">
+                    <div className="bg-green-500/20 p-1 rounded-full">
+                      <CheckCircle size={16} className="text-green-400" />
+                    </div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link to="/register" className="inline-flex items-center gap-2 text-white font-bold border-b-2 border-blue-500 pb-1 hover:text-blue-400 hover:border-blue-400 transition">
+                Crear cuenta gratis <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            {/* MOCKUP VISUAL (Celular Flotante) */}
+            <div className="relative mx-auto lg:mx-0">
+              <div className="relative w-[300px] md:w-[340px] h-[600px] bg-gray-800 rounded-[3rem] border-8 border-gray-900 shadow-2xl overflow-hidden transform rotate-6deg hover:rotate-0 transition-transform duration-500">
+                {/* Pantalla del Celular */}
+                <div className="bg-gray-50 w-full h-full relative flex flex-col">
+                  {/* Status Bar Fake */}
+                  <div className="h-8 bg-white flex justify-between px-6 items-center text-[10px] font-bold text-gray-800">
+                    <span>9:41</span>
+                    <div className="flex gap-1">
+                      <div className="w-4 h-2 bg-gray-800 rounded-sm"></div>
+                      <div className="w-3 h-2 bg-gray-800 rounded-sm"></div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <CheckCircle className="w-6 h-6 text-green-500 shrink-0 mt-1" />
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Garantía de Servicio
-                    </h3>
-                    <p className="text-gray-600">
-                      Todos nuestros trabajos cuentan con garantía de
-                      satisfacción
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <CheckCircle className="w-6 h-6 text-green-500 shrink-0 mt-1" />
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Respuesta Rápida
-                    </h3>
-                    <p className="text-gray-600">
-                      Atendemos emergencias en menos de 2 horas
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <CheckCircle className="w-6 h-6 text-green-500 shrink-0 mt-1" />
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Precios Competitivos
-                    </h3>
-                    <p className="text-gray-600">
-                      Tarifas justas sin costos ocultos ni sorpresas
-                    </p>
+
+                  {/* App Content */}
+                  <div className="p-6 flex-1">
+                    <div className="flex justify-between items-center mb-6">
+                      <h4 className="font-bold text-gray-800 text-xl">Mi Servicio</h4>
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                        <User size={16}/>
+                      </div>
+                    </div>
+
+                    {/* Tarjeta de Estado Activo */}
+                    <div className="bg-white p-5 rounded-2xl shadow-lg shadow-blue-100/50 mb-6 border border-blue-50">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-3 bg-blue-600 rounded-xl text-white">
+                          <Wind size={20} />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase font-bold">En curso</p>
+                          <p className="font-bold text-gray-800">Mantenimiento Split</p>
+                        </div>
+                      </div>
+                      
+                      {/* Timeline simple */}
+                      <div className="space-y-4 pl-2 border-l-2 border-gray-100 ml-4">
+                        <div className="relative pl-6">
+                          <div className="absolute -left-[5px] top-1 w-2 h-2 bg-green-500 rounded-full ring-4 ring-white"></div>
+                          <p className="text-xs text-gray-500">08:30 AM</p>
+                          <p className="text-sm font-medium text-gray-800">Técnico asignado</p>
+                        </div>
+                        <div className="relative pl-6">
+                          <div className="absolute -left-[5px] top-1 w-2 h-2 bg-blue-500 rounded-full ring-4 ring-blue-100 animate-pulse"></div>
+                          <p className="text-xs text-blue-600 font-bold">Ahora</p>
+                          <p className="text-sm font-medium text-blue-700">Trabajando en el equipo</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mapa Fake */}
+                    <div className="bg-gray-200 h-32 rounded-2xl w-full mb-4 flex items-center justify-center text-gray-400 text-xs font-bold">
+                      <MapPin size={16} className="mr-1" /> UBICACIÓN DEL TÉCNICO
+                    </div>
+                    
+                    <button className="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-sm shadow-lg">
+                      Contactar Técnico
+                    </button>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="bg-blue-600 rounded-2xl p-8 text-white">
-              <h3 className="text-3xl font-bold mb-6">
-                Solicita una Cotización Gratis
-              </h3>
-              <form className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Nombre completo"
-                  className="w-full px-4 py-3 rounded-lg text-white font-medium hover:bg-blue-700 hover:ring-2 ring-blue-400 transition"
-                />
-                <input
-                  type="email"
-                  placeholder="Correo electrónico"
-                  className="w-full px-4 py-3 rounded-lg text-white font-medium hover:bg-blue-700 hover:ring-2 ring-blue-400 transition"
-                />
-                <input
-                  type="tel"
-                  placeholder="Teléfono"
-                  className="w-full px-4 py-3 rounded-lg text-white font-medium hover:bg-blue-700 hover:ring-2 ring-blue-400 transition"
-                />
-                <textarea
-                  placeholder="Describe tu necesidad"
-                  rows="4"
-                  className="w-full px-4 py-3 rounded-lg text-white font-medium hover:bg-blue-700 hover:ring-2 ring-blue-400 transition"
-                ></textarea>
-                <button className="w-full bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-                  Enviar Solicitud
-                </button>
-              </form>
+              
+              {/* Elementos flotantes decorativos */}
+              <div className="absolute top-20 -right-12 bg-white p-4 rounded-2xl shadow-xl animate-bounce duration-3000ms">
+                <Activity className="text-green-500 mb-1" />
+                <p className="text-xs font-bold text-gray-800">Rendimiento +40%</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonios */}
-      <section id="testimonios" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Lo Que Dicen Nuestros Clientes
-            </h2>
-            <p className="text-xl text-gray-600">
-              Testimonios reales de clientes satisfechos
-            </p>
-          </div>
+      {/* --- NUEVO: COTIZADOR RÁPIDO (PUNTO 3) --- */}
+      <section id="cotizar" className="py-24 bg-blue-900 text-white relative overflow-hidden">
+        {/* Fondo decorativo */}
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-800/30 skew-x-12 transform origin-top-right"></div>
+        
+        <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">Cotiza tu servicio en segundos</h2>
+          <p className="text-blue-200 text-lg mb-12 max-w-2xl mx-auto">
+            Selecciona el tipo de equipo y el servicio que necesitas para obtener una referencia inmediata.
+          </p>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonios.map((testimonio, index) => (
-              <div
-                key={index}
-                className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
-              >
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonio.rating)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-5 h-5 text-yellow-400 fill-current"
-                    />
+          <div className="bg-white rounded-3xl p-2 md:p-8 shadow-2xl text-gray-800">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 text-left">
+              
+              {/* Paso 1: Tipo */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-gray-400 text-sm uppercase">1. Tipo de Equipo</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {['Split', 'Ventana', 'Central', 'Portátil'].map(tipo => (
+                    <button key={tipo} className="border cursor-pointer border-gray-200 rounded-xl p-3 hover:border-blue-500 hover:bg-blue-50 transition text-sm font-medium focus:ring-2 ring-blue-500">
+                      {tipo}
+                    </button>
                   ))}
                 </div>
-                <p className="text-gray-600 mb-4 italic">
-                  "{testimonio.comentario}"
-                </p>
-                <div>
-                  <p className="font-semibold text-gray-900">
-                    {testimonio.nombre}
-                  </p>
-                  <p className="text-sm text-gray-500">{testimonio.empresa}</p>
-                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Contacto */}
-      <section id="contacto" className="py-20 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12">
-            <div>
-              <h2 className="text-4xl font-bold mb-6">Contáctanos</h2>
-              <p className="text-gray-300 mb-8">
-                Estamos listos para atender tus necesidades de climatización.
-                Contáctanos hoy mismo y obtén una cotización sin compromiso.
-              </p>
+              {/* Paso 2: Servicio */}
               <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <Phone className="w-6 h-6 text-blue-400" />
-                  <div>
-                    <p className="font-semibold">Teléfono</p>
-                    <p className="text-gray-300">+34 900 123 456</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Mail className="w-6 h-6 text-blue-400" />
-                  <div>
-                    <p className="font-semibold">Email</p>
-                    <p className="text-gray-300">info@instalar.com</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <MapPin className="w-6 h-6 text-blue-400" />
-                  <div>
-                    <p className="font-semibold">Dirección</p>
-                    <p className="text-gray-300">
-                      Entre Ríos 212, San Miguel de Tucumán, Argentina
-                    </p>
-                  </div>
+                <h3 className="font-bold text-gray-400 text-sm uppercase">2. Servicio</h3>
+                <div className="space-y-2">
+                  {['Mantenimiento Básico', 'Limpieza Profunda', 'Reparación / Falla', 'Instalación Nueva'].map(serv => (
+                    <button key={serv} className="cursor-pointer w-full text-left border border-gray-200 rounded-xl p-3 hover:border-blue-500 hover:bg-blue-50 transition text-sm font-medium focus:ring-2 ring-blue-500 flex justify-between">
+                      {serv}
+                      <span className="text-gray-400">→</span>
+                    </button>
+                  ))}
                 </div>
               </div>
-            </div>
-            <div>
-              <div className="bg-gray-800 rounded-xl p-8">
-                <h3 className="text-2xl font-bold mb-6">Horario de Atención</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-300">Lunes - Viernes:</span>
-                    <span className="font-semibold">8:00 AM - 8:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-300">Sábados:</span>
-                    <span className="font-semibold">9:00 AM - 6:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-300">Domingos:</span>
-                    <span className="font-semibold">
-                      Emergencias únicamente
-                    </span>
-                  </div>
-                  <div className="mt-6 p-4 bg-blue-600 rounded-lg text-center">
-                    <p className="font-semibold">Servicio de Emergencia 24/7</p>
-                    <p className="text-sm mt-1">
-                      Para urgencias fuera de horario
-                    </p>
-                  </div>
+
+              {/* Paso 3: Resultado */}
+              <div className="bg-gray-50 rounded-2xl p-6 flex flex-col justify-between items-center text-center">
+                <div>
+                  <p className="text-gray-500 text-sm mb-2">Precio Estimado desde:</p>
+                  <p className="text-4xl font-extrabold text-blue-600 mb-1">$25.000<span className="text-sm text-gray-400 font-normal">*</span></p>
+                  <p className="text-xs text-gray-400">*Sujeto a revisión técnica</p>
                 </div>
+                <Link to="/Register" className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg mt-6">
+                  Agendar Ahora
+                </Link>
               </div>
+
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-950 text-gray-400 py-8">
+      <footer className="bg-gray-950 text-white pt-20 pb-10 border-t border-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center mb-4 md:mb-0">
-              <Wind className="w-6 h-6 text-blue-400" />
-              <span className="ml-2 text-xl font-bold text-white">
-                InstaLar
-              </span>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            
+            {/* Columna 1: Marca y Bio */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                   <Wind className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold tracking-tight">InstaLar</span>
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Transformamos el clima de tus espacios con tecnología de punta y servicio humano. Tu confort es nuestra misión técnica.
+              </p>
+              <div className="flex gap-4">
+                 {/* Botones Sociales Estilizados */}
+                 <a href="#" className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:bg-blue-600 hover:border-blue-500 hover:-translate-y-1 transition-all duration-300">
+                    <Facebook size={20} />
+                 </a>
+                 <a href="#" className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:bg-blue-600 hover:border-blue-500 hover:-translate-y-1 transition-all duration-300">
+                    <Instagram size={20} />
+                 </a>
+                 <a href="#" className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:bg-blue-600 hover:border-blue-500 hover:-translate-y-1 transition-all duration-300">
+                    <Mail size={20} />
+                 </a>
+              </div>
             </div>
-            <p className="text-sm">
-              © 2025 InstaLar. Todos los derechos reservados.
+
+            {/* Columna 2: Enlaces Rápidos */}
+            <div>
+              <h3 className="font-bold text-lg mb-6">Empresa</h3>
+              <ul className="space-y-4 text-sm text-gray-400">
+                {['Sobre Nosotros', 'Nuestros Servicios', 'Casos de Éxito', 'Trabaja con Nosotros', 'Blog'].map((item) => (
+                  <li key={item}>
+                    <a href="#" className="hover:text-blue-400 transition flex items-center gap-2 group">
+                      <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Columna 3: Servicios */}
+            <div>
+              <h3 className="font-bold text-lg mb-6">Servicios</h3>
+              <ul className="space-y-4 text-sm text-gray-400">
+                {['Mantenimiento Preventivo', 'Instalación Split', 'Reparación de Fugas', 'Carga de Gas', 'Sistemas Centrales'].map((item) => (
+                  <li key={item}>
+                    <a href="#" className="hover:text-blue-400 transition">
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Columna 4: Newsletter */}
+            <div>
+              <h3 className="font-bold text-lg mb-6">Mantente Fresco</h3>
+              <p className="text-gray-400 text-sm mb-4">
+                Recibe tips de mantenimiento y ofertas exclusivas.
+              </p>
+              <form className="space-y-3">
+                <div className="relative">
+                  <input 
+                    type="email" 
+                    placeholder="Tu correo electrónico" 
+                    className="w-full bg-gray-900 border border-gray-800 rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  />
+                  <button className="absolute cursor-pointer right-2 top-2 p-1.5 bg-blue-600 rounded-md text-white hover:bg-blue-700 transition">
+                    <Send size={16} />
+                  </button>
+                </div>
+                <p className="text-xs text-gray-600">
+                  Al suscribirte aceptas nuestra política de privacidad.
+                </p>
+              </form>
+            </div>
+
+          </div>
+
+          {/* Línea divisoria */}
+          <div className="border-t border-gray-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-500 text-sm">
+              © 2025 InstaLar S.A. Todos los derechos reservados.
             </p>
-            <div className="flex gap-4 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white transition">
-                Privacidad
-              </a>
-              <a href="#" className="hover:text-white transition">
-                Términos
-              </a>
-              <a href="#" className="hover:text-white transition">
-                Contacto
-              </a>
+            <div className="flex gap-8 text-sm text-gray-500">
+              <a href="#" className="hover:text-white transition">Privacidad</a>
+              <a href="#" className="hover:text-white transition">Cookies</a>
+              <a href="#" className="hover:text-white transition">Términos</a>
             </div>
           </div>
         </div>
       </footer>
+
     </div>
   );
 };
