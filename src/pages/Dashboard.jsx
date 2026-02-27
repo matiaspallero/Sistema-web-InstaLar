@@ -1,3 +1,4 @@
+// DASHBOARD PRINCIPAL: RENDERIZA VISTAS DIFERENTES PARA ADMIN Y TÉCNICO
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -168,7 +169,7 @@ const AdminDashboard = () => {
               <thead>
                 <tr className="text-xs text-gray-500 border-b border-gray-100">
                   <th className="px-6 py-3 font-semibold uppercase">Cliente / Sede</th>
-                  <th className="px-6 py-3 font-semibold uppercase">Tipo / Problema</th>
+                  <th className="px-6 py-3 font-semibold uppercase">Descripción / Problema</th>
                   <th className="px-6 py-3 font-semibold uppercase">Fecha</th>
                   <th className="px-6 py-3 font-semibold uppercase text-right">Acción</th>
                 </tr>
@@ -185,7 +186,7 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4">
                          <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-bold uppercase mb-1 inline-block">
-                           {sol.tipo_servicio}
+                           {sol.tipo}
                          </span>
                          <p className="text-gray-600 truncate max-w-[150px]" title={sol.descripcion}>
                            {sol.descripcion}
@@ -200,7 +201,7 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4 text-right">
                         <button 
                           onClick={() => navigate(`/solicitudes`)}
-                          className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 shadow-sm transition-transform hover:scale-105"
+                          className="bg-blue-600 text-white cursor-pointer px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 shadow-sm transition-transform hover:scale-105"
                         >
                           Asignar
                         </button>

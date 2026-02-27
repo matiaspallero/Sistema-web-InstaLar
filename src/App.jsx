@@ -49,9 +49,10 @@ const HomeRedirect = () => {
     return <Navigate to="/clienteDashboard" replace />;
   } else {
     // Admins y Técnicos van al Dashboard general
-    return <Navigate to="/dashboard" replace />;
-  }
-};
+      if (user.rol === 'admin') {
+      return <Navigate to="/dashboard" replace/>;
+    }
+}};
 
 // Layout principal
 const MainLayout = () => {

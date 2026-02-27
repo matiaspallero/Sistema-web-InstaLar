@@ -133,7 +133,7 @@ function Clientes() {
         
         <div className="flex w-full md:w-auto gap-3">
           {/* Barra de búsqueda estilizada */}
-          <div className="relative w-full md:w-64">
+          <div className="relative w-full md:w-100">
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
             <input
               type="text"
@@ -143,13 +143,6 @@ function Clientes() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             />
           </div>
-          
-          <button 
-            onClick={() => setShowModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition flex items-center gap-2 whitespace-nowrap cursor-pointer shadow-md shadow-blue-200"
-          >
-            <FaPlus /> Nuevo Cliente
-          </button>
         </div>
       </div>
 
@@ -257,148 +250,6 @@ function Clientes() {
       </div>
 
       {/* MODAL ESTILIZADO */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col">
-            
-            {/* Header del Modal */}
-            <div className="bg-blue-600 p-6 flex justify-between items-center text-white shrink-0 sticky top-0 z-10">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                {editingCliente ? <><FaEdit /> Editar Cliente</> : <><FaPlus /> Nuevo Cliente</>}
-              </h3>
-              <button 
-                onClick={handleCloseModal}
-                className="text-white/70 hover:text-white transition cursor-pointer bg-white/10 p-2 rounded-full"
-              >
-                <FaTimes size={20} />
-              </button>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Nombre */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre / Razón Social *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.nombre}
-                    onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="Ej: Empresa S.A."
-                  />
-                </div>
-
-                {/* RUC (Manteniendo tu campo) */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">RUC / CUIT</label>
-                  <div className="relative">
-                    <FaIdCard className="absolute left-3 top-3 text-gray-400" />
-                    <input
-                      type="text"
-                      value={formData.ruc}
-                      onChange={(e) => setFormData({...formData, ruc: e.target.value})}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="Identificación Fiscal"
-                    />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Email *</label>
-                  <div className="relative">
-                    <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="correo@ejemplo.com"
-                    />
-                  </div>
-                </div>
-
-                {/* Teléfono */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
-                  <div className="relative">
-                    <FaPhone className="absolute left-3 top-3 text-gray-400" />
-                    <input
-                      type="tel"
-                      value={formData.telefono}
-                      onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="Ej: 381..."
-                    />
-                  </div>
-                </div>
-
-                {/* Contacto */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Persona de Contacto</label>
-                  <input
-                    type="text"
-                    value={formData.contacto}
-                    onChange={(e) => setFormData({...formData, contacto: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="Ej: Juan Pérez"
-                  />
-                </div>
-
-                {/* Ciudad */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Ciudad</label>
-                  <div className="relative">
-                    <FaBuilding className="absolute left-3 top-3 text-gray-400" />
-                    <input
-                      type="text"
-                      value={formData.ciudad}
-                      onChange={(e) => setFormData({...formData, ciudad: e.target.value})}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="Ej: San Miguel"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Dirección */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Dirección</label>
-                <div className="relative">
-                   <FaMapMarkerAlt className="absolute left-3 top-3 text-gray-400" />
-                   <textarea
-                    value={formData.direccion}
-                    onChange={(e) => setFormData({...formData, direccion: e.target.value})}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-                    rows="2"
-                    placeholder="Calle, Número, Piso..."
-                  />
-                </div>
-              </div>
-
-              {/* Botones del Modal */}
-              <div className="flex gap-3 pt-4 border-t border-gray-100 mt-4">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 cursor-pointer transition-colors shadow-lg shadow-blue-200"
-                >
-                  {editingCliente ? 'Guardar Cambios' : 'Registrar Cliente'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

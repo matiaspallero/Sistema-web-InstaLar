@@ -147,8 +147,8 @@ const TecAtencionModal = ({ servicio, onClose, onSuccess }) => {
                     {/* Descripción */}
                     <div>
                         <h3 className="font-bold text-gray-800 mb-2 text-sm uppercase">Problema Reportado</h3>
-                        <p className="bg-gray-50 p-3 rounded-lg text-gray-700 text-sm border border-gray-200 italic">
-                            "{servicio.descripcion}"
+                        <p className="bg-gray-50 p-3 rounded-lg text-gray-700 text-md border border-gray-200 italic">
+                            "{servicio.tipo}"
                         </p>
                     </div>
 

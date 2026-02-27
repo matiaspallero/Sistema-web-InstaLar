@@ -51,7 +51,7 @@ function Login() {
       
       switch (userRole) {
         case ROLES.ADMIN:
-          navigate(from === '/login' ? '/dashboard' : from);
+          navigate('/dashboard');
           break;
         case ROLES.TECNICO:
           navigate('/dashboard'); // Técnicos van al dashboard general
@@ -65,17 +65,6 @@ function Login() {
     } else {
       setLocalError(result.message);
     }
-  };
-
-  // Función para login rápido (solo desarrollo)
-  const quickLogin = async (role) => {
-    const credentials = {
-      admin: { email: 'admin@instalar.com', password: 'Admin' },
-      tecnico: { email: 'tecnico@instalar.com', password: 'tecnico123' },
-      cliente: { email: 'cliente@instalar.com', password: 'cliente123' }
-    };
-
-    setFormData(credentials[role]);
   };
 
   return (
@@ -201,40 +190,6 @@ function Login() {
           </p>
         </div>
 
-        {/* Demo credentials (SOLO DESARROLLO - remover en producción) */}
-        {import.meta.env.DEV && (
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <p className="text-xs text-gray-600 font-semibold mb-3">🔧 Acceso rápido (desarrollo):</p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => quickLogin('admin')}
-                className="text-xs bg-purple-100 text-purple-700 px-3 py-2 rounded hover:bg-purple-200 transition font-medium"
-              >
-                Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => quickLogin('tecnico')}
-                className="text-xs bg-green-100 text-green-700 px-3 py-2 rounded hover:bg-green-200 transition font-medium"
-              >
-                Técnico
-              </button>
-              <button
-                type="button"
-                onClick={() => quickLogin('cliente')}
-                className="text-xs bg-blue-100 text-blue-700 px-3 py-2 rounded hover:bg-blue-200 transition font-medium"
-              >
-                Cliente
-              </button>
-            </div>
-            <div className="mt-3 space-y-1 text-xs text-gray-600">
-              <p><strong>Admin:</strong> admin@instalar.com / Admin</p>
-              <p><strong>Técnico:</strong> tecnico@instalar.com / tecnico123</p>
-              <p><strong>Cliente:</strong> cliente@instalar.com / cliente123</p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

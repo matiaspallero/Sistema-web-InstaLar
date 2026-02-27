@@ -1,3 +1,4 @@
+// MODAL PARA ASIGNAR TÉCNICO DESDE EL DASHBOARD DE ADMINISTRACIÓN
 import { useState, useEffect } from 'react';
 import { FaTimes, FaUserTie, FaMapMarkerAlt, FaCalendarAlt, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import { api } from '../services/api';

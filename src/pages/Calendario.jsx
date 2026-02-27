@@ -9,7 +9,8 @@ import {
   FaCheckCircle,
   FaClock,
   FaTools,
-  FaExclamationCircle
+  FaExclamationCircle,
+  FaUser,
 } from 'react-icons/fa';
 import { api } from '../services/api';
 import Loading from '../components/Loading';
@@ -350,75 +351,113 @@ function Calendario() {
 
       {/* 3. Modal de Detalles del Día */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-fade-in">
+          
+          {/* Contenedor Principal */}
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] transform transition-all scale-100">
             
-            <div className="bg-blue-600 p-6 text-white flex justify-between items-center shrink-0">
+            {/* Header Elegante */}
+            <div className="bg-linear-to-r from-blue-700 to-blue-600 p-6 text-white flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  <FaCalendarDay />
-                  {selectedDate?.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
+                <h3 className="text-2xl font-bold flex items-center gap-3">
+                  <FaCalendarDay className="text-blue-300" />
+                  {selectedDate?.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}
                 </h3>
-                <p className="text-blue-100 text-sm mt-1">
-                  {serviciosDelDia.length} servicios programados
+                <p className="text-blue-100 text-sm mt-1 opacity-90 font-medium">
+                  {serviciosDelDia.length} {serviciosDelDia.length === 1 ? 'servicio programado' : 'servicios programados'}
                 </p>
               </div>
               <button 
                 onClick={() => setShowModal(false)}
-                className="bg-white/10 hover:bg-white/20 cursor-pointer p-2 rounded-full transition text-white"
+                className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition text-white cursor-pointer"
               >
-                <FaTimes size={18}/>
+                <FaTimes size={20}/>
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto bg-gray-50">
+            {/* Cuerpo Scrollable */}
+            <div className="p-6 overflow-y-auto bg-gray-50/50 flex-1">
               {serviciosDelDia.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-2xl">
-                    <FaCalendarAlt />
+                <div className="flex flex-col items-center justify-center h-48 text-gray-400">
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <FaCalendarAlt size={32} className="text-gray-300" />
                   </div>
-                  <p className="text-gray-500 font-medium">No hay servicios para este día</p>
+                  <p className="font-medium">Día libre sin servicios asignados</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {serviciosDelDia.map((servicio) => (
                     <div 
                       key={servicio.id} 
-                      className={`bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow ${getEstadoBadgeClass(servicio.estado)}`}
+                      className={`${getEstadoBadgeClass(servicio.estado)} p-4 rounded-lg border bg-white shadow-sm relative`}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-bold text-gray-800 text-lg">{servicio.tipo}</h4>
-                        <span className="text-lg font-bold text-gray-600">{servicio.hora}</span>
-                      </div>
-                      
-                      <div className="space-y-1 text-sm text-gray-600 mb-3">
-                        <p><strong className="text-gray-800">Cliente:</strong> {servicio.clientes?.nombre || 'N/A'}</p>
-                        <p><strong className="text-gray-800">Técnico:</strong> {servicio.tecnicos?.nombre || 'Sin asignar'}</p>
-                        {servicio.descripcion && (
-                          <p className="italic bg-gray-50 p-2 rounded mt-2 text-xs border border-gray-100">
-                            "{servicio.descripcion}"
-                          </p>
-                        )}
+                      {/* Badge de Hora */}
+                      <div className="absolute top-4 right-4 bg-gray-100 px-2 py-1 rounded text-xs font-bold text-gray-600 flex items-center gap-1">
+                        <FaClock size={10} /> {servicio.hora?.slice(0, 5)} hs
                       </div>
 
-                      <div className="flex justify-end pt-2 border-t border-gray-100">
-                        <span className={`text-xs font-bold px-2 py-1 rounded uppercase tracking-wide
-                          ${servicio.estado === 'completado' ? 'text-green-600 bg-green-100' :
-                            servicio.estado === 'en-proceso' ? 'text-yellow-600 bg-yellow-100' :
-                            'text-purple-600 bg-purple-100'}`}>
+                      <h4 className="font-bold text-gray-800 text-lg mb-1 pr-16">{servicio.tipo}</h4>
+                      
+                      {/* Detalles */}
+                      <div className="space-y-2 text-sm mt-3">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs">
+                             <FaUser size={10}/>
+                          </div>
+                          <span className="font-medium">{servicio.clientes?.nombre || 'Cliente sin nombre'}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <div className="w-6 h-6 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-xs">
+                             <FaTools size={10}/>
+                          </div>
+                          <span className="font-medium">Técnico: {servicio.tecnicos?.nombre || 'Sin asignar'}</span>
+                        </div>
+                      </div>
+
+                      {/* Descripción (si existe) */}
+                      {servicio.descripcion && (
+                        <div className="mt-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <p className="text-xs text-gray-500 italic line-clamp-2">
+                            "{servicio.descripcion}"
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Footer de la Tarjeta */}
+                      <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide
+                          ${servicio.estado === 'completado' ? 'text-green-700 bg-green-50' :
+                            servicio.estado === 'en-proceso' ? 'text-yellow-700 bg-yellow-50' :
+                            'text-purple-700 bg-purple-50'}`}>
                           {getEstadoTexto(servicio.estado)}
                         </span>
+                        <button className="text-blue-600 text-xs font-bold hover:underline cursor-pointer">
+                          Ver detalles →
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-            <div className="p-4 flex justify-end gap-3">
-              <button className="bg-green-600 text-white px-4 py-2 rounded mr-2 cursor-pointer hover:bg-green-700" onClick={() => alert('Aceptar')}>Aceptar</button>
-              <button className="bg-yellow-500 text-white px-4 py-2 rounded mr-2 cursor-pointer hover:bg-yellow-600" onClick={() => alert('En Proceso')}>En Proceso </button>
-              <button className="bg-purple-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-purple-600" onClick={() => alert('Pendiente')}>Pendiente</button>
+
+            {/* Footer con Botones de Acción Rápida */}
+            <div className="p-4 bg-white border-t border-gray-100 flex justify-end gap-3">
+              <button 
+                className="px-4 py-2 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-100 transition cursor-pointer"
+                onClick={() => setShowModal(false)}
+              >
+                Cerrar
+              </button>
+              <button 
+                className="px-6 py-2 rounded-lg text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md transition cursor-pointer flex items-center gap-2"
+                onClick={() => alert('Función: Ir a gestionar día')}
+              >
+                <FaCalendarDay /> Gestionar Día
+              </button>
             </div>
+
           </div>
         </div>
       )}

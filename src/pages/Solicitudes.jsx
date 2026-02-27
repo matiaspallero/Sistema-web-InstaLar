@@ -1,3 +1,4 @@
+// PAGINA DE SOLICITUDES PENDIENTES DE ASIGNACIÓN (ADMINISTRADOR)
 import { useState, useEffect } from 'react';
 import { 
   FaInbox, FaCheck, FaTimes, FaUser, FaMapMarkerAlt, FaClock, FaTools 
