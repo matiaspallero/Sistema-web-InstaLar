@@ -18,10 +18,11 @@ function Navbar() {
     <nav className="bg-white shadow-md px-4 md:px-6 py-3 md:py-4 flex justify-between items-center sticky top-0 z-30">
       
       {/* Logo / Título */}
-      <div className="flex items-center gap-3 md:gap-4">
-        <h2 className="text-base md:text-xl font-semibold text-gray-800 truncate">
+      <div className="flex items-center gap-3 md:gap-4 ml-14 md:ml-0">
+        <h2 className="text-lg md:text-xl font-bold text-gray-800 truncate tracking-tight">
           <span className="hidden sm:inline">Sistema de Gestión - Mantenimiento A/C</span>
-          <span className="sm:hidden">InstaLar</span>
+          {/* Le di un toque azul al texto en móvil para que combine con tu marca */}
+          <span className="sm:hidden text-blue-600">InstaLar</span>
         </h2>
       </div>
 
