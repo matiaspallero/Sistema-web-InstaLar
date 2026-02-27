@@ -19,6 +19,8 @@ import {
   Mail
 } from "lucide-react";
 
+const añoConcurriente = new Date().getFullYear();
+
 const Inicio = () => {
   const [menuAbierto, setMenuAbierto] = useState(false);
 
@@ -82,8 +84,28 @@ const Inicio = () => {
             <button className="md:hidden p-2 text-gray-600" onClick={() => setMenuAbierto(!menuAbierto)}>
               {menuAbierto ? <X /> : <Menu />}
             </button>
+            
           </div>
         </div>
+
+        {/* --- MENÚ DESPLEGABLE MÓVIL --- */}
+        {menuAbierto && (
+          <div className="md:hidden absolute top-20 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-100 shadow-xl py-4 px-6 flex flex-col gap-4 animate-fade-in z-50">
+            <a href="#inicio" onClick={() => setMenuAbierto(false)} className="text-gray-700 font-medium hover:text-blue-600 py-2 border-b border-gray-50">Inicio</a>
+            <a href="#servicios" onClick={() => setMenuAbierto(false)} className="text-gray-700 font-medium hover:text-blue-600 py-2 border-b border-gray-50">Servicios</a>
+            <a href="#tecnologia" onClick={() => setMenuAbierto(false)} className="text-gray-700 font-medium hover:text-blue-600 py-2 border-b border-gray-50">Tecnología</a>
+            <a href="#cotizar" onClick={() => setMenuAbierto(false)} className="text-gray-700 font-medium hover:text-blue-600 py-2">Cotizar</a>
+            
+            <div className="border-t border-gray-100 pt-4 flex flex-col gap-3 mt-2">
+              <Link to="/login" className="text-center text-gray-700 font-bold border border-gray-200 py-3 rounded-xl hover:bg-gray-50 transition">
+                Soy Cliente
+              </Link>
+              <Link to="/register" className="text-center bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">
+                Empezar Ahora
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* --- HERO SECTION (VIDEO) --- */}
@@ -397,7 +419,8 @@ const Inicio = () => {
               <ul className="space-y-4 text-sm text-gray-400">
                 {['Mantenimiento Preventivo', 'Instalación Split', 'Reparación de Fugas', 'Carga de Gas', 'Sistemas Centrales'].map((item) => (
                   <li key={item}>
-                    <a href="#" className="hover:text-blue-400 transition">
+                    <a href="#" className="hover:text-blue-400 transition flex items-center gap-2 group">
+                      <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                       {item}
                     </a>
                   </li>
@@ -433,7 +456,7 @@ const Inicio = () => {
           {/* Línea divisoria */}
           <div className="border-t border-gray-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
-              © 2025 InstaLar S.A. Todos los derechos reservados.
+              © {añoConcurriente} InstaLar S.A. Todos los derechos reservados.
             </p>
             <div className="flex gap-8 text-sm text-gray-500">
               <a href="#" className="hover:text-white transition">Privacidad</a>
