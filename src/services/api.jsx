@@ -33,7 +33,7 @@ export const api = {
   auth: {
     login: async (credentials) => {
       try {
-        return await request('auth/login', {
+        return await request('/auth/login', {
           method: 'POST',
           body: JSON.stringify(credentials)
         });
@@ -44,7 +44,7 @@ export const api = {
 
     register: async (userData) => {
       try {
-        return await request('auth/register', {
+        return await request('/auth/register', {
           method: 'POST',
           body: JSON.stringify(userData)
         });
@@ -55,7 +55,7 @@ export const api = {
 
     verifyToken: async (token) => {
       try {
-        return await request('auth/verify', {
+        return await request('/auth/verify', {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -66,7 +66,7 @@ export const api = {
 
     logout: async () => {
       try {
-        return await request('auth/logout', { method: 'POST' });
+        return await request('/auth/logout', { method: 'POST' });
       } catch (error) {
         return { success: false };
       }
@@ -75,11 +75,11 @@ export const api = {
 
   users: {
     getProfile: async () => {
-      return await request('users/profile');
+      return await request('/users/profile');
     },
 
     updateProfile: async (data) => {
-      return await request('users/profile', {
+      return await request('/users/profile', {
         method: 'PUT',
         body: JSON.stringify(data)
       });
@@ -89,29 +89,29 @@ export const api = {
   // Endpoints para clientes
   clientes: {
     getAll: async () => {
-      return await request('clientes');
+      return await request('/clientes');
     },
 
     getById: async (id) => {
-      return await request(`clientes/${id}`);
+      return await request(`/clientes/${id}`);
     },
 
     create: async (data) => {
-      return await request('clientes', {
+      return await request('/clientes', {
         method: 'POST',
         body: JSON.stringify(data)
       });
     },
 
     update: async (id, data) => {
-      return await request(`clientes/${id}`, {
+      return await request(`/clientes/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data)
       });
     },
 
     delete: async (id) => {
-      return await request(`clientes/${id}`, {
+      return await request(`/clientes/${id}`, {
         method: 'DELETE'
       });
     }
@@ -120,53 +120,53 @@ export const api = {
   // Endpoints para servicios
   servicios: {
     getAll: async () => {
-      return await request('servicios');
+      return await request('/servicios');
     },
 
     getById: async (id) => {
-      return await request(`servicios/${id}`);
+      return await request(`/servicios/${id}`);
     },
 
     create: async (data) => {
-      return await request('servicios', {
+      return await request('/servicios', {
         method: 'POST',
         body: JSON.stringify(data)
       });
     },
 
     getByUser: async (userId) => {
-      return await request(`servicios/usuario/${userId}`);
+      return await request(`/servicios/usuario/${userId}`);
     },
 
     solicitar: async (data) => {
-      return await request('servicios/solicitar', {
+      return await request('/servicios/solicitar', {
         method: 'POST',
         body: JSON.stringify(data)
       });
     },
 
     asignarTecnico: async (id, tecnico_id) => {
-      return await request(`servicios/${id}/asignar-tecnico`, {
+      return await request(`/servicios/${id}/asignar-tecnico`, {
         method: 'PATCH',
         body: JSON.stringify({ tecnico_id })
       });
     },
 
     update: async (id, data) => {
-      return await request(`servicios/${id}`, {
+      return await request(`/servicios/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data)
       });
     },
 
     delete: async (id) => {
-      return await request(`servicios/${id}`, {
+      return await request(`/servicios/${id}`, {
         method: 'DELETE'
       });
     },
 
     updateEstado: async (id, estado) => {
-      return await request(`servicios/${id}/estado`, {
+      return await request(`/servicios/${id}/estado`, {
         method: 'PATCH',
         body: JSON.stringify({ estado })
       });
@@ -176,72 +176,72 @@ export const api = {
   // Endpoints para técnicos
   tecnicos: {
     getAll: async () => {
-      return await request('tecnicos');
+      return await request('/tecnicos');
     },
 
     getById: async (id) => {
-      return await request(`tecnicos/${id}`);
+      return await request(`/tecnicos/${id}`);
     },
 
     create: async (data) => {
-      return await request('tecnicos', {
+      return await request('/tecnicos', {
         method: 'POST',
         body: JSON.stringify(data)
       });
     },
 
     update: async (id, data) => {
-      return await request(`tecnicos/${id}`, {
+      return await request(`/tecnicos/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data)
       });
     },
 
     delete: async (id) => {
-      return await request(`tecnicos/${id}`, {
+      return await request(`/tecnicos/${id}`, {
         method: 'DELETE'
       });
     },
 
     getMisTrabajos: async () => {
-    return await request(`servicios/tecnico/mis-trabajos`);
+    return await request(`/servicios/tecnico/mis-trabajos`);
     },
   },
 
   // Endpoints para sedes
   sedes: {
     getAll: async () => {
-      return await request('sedes');
+      return await request('/sedes');
     },
 
     getById: async (id) => {
-      return await request(`sedes/${id}`);
+      return await request(`/sedes/${id}`);
     },
 
     getByCliente: async (clienteId) => {
-      return await request(`sedes/cliente/${clienteId}`);
+      return await request(`/sedes/cliente/${clienteId}`);
     },
 
     getByUser: async (userId) => {
-      return await request(`sedes/usuario/${userId}`);
+      return await request(`/sedes/usuario/${userId}`);
     },
 
     create: async (data) => {
-      return await request('sedes', {
+      return await request('/sedes', {
         method: 'POST',
         body: JSON.stringify(data)
       });
     },
 
     update: async (id, data) => {
-      return await request(`sedes/${id}`, {
+      return await request(`/sedes/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data)
       });
     },
 
     delete: async (id) => {
-      return await request(`sedes/${id}`, {
+      return await request(`/sedes/${id}`, {
         method: 'DELETE'
       });
     }
@@ -251,14 +251,14 @@ export const api = {
   solicitudes: {
     // Obtener todas (para el Admin/Cliente)
     getAll: async () => {
-      const response = await request('solicitudes');
+      const response = await request('/solicitudes');
       // A veces el backend devuelve { success: true, data: [...] } y otras veces el array directo
       return response.data || response; 
     },
 
     // Crear nueva solicitud (Cliente)
     create: async (data) => {
-      return await request('solicitudes', {
+      return await request('/solicitudes', {
         method: 'POST',
         body: JSON.stringify(data)
       });
@@ -266,7 +266,7 @@ export const api = {
 
     // ASIGNAR TÉCNICO (La función que pediste)
     asignarTecnico: async (id, tecnico_id) => {
-      return await request(`solicitudes/${id}/asignar-tecnico`, {
+      return await request(`/solicitudes/${id}/asignar-tecnico`, {
         method: 'PATCH', // Coincide con tu routes.js
         body: JSON.stringify({ tecnico_id })
       });
@@ -274,7 +274,7 @@ export const api = {
 
     // Eliminar solicitud
     delete: async (id) => {
-      return await request(`solicitudes/${id}`, {
+      return await request(`/solicitudes/${id}`, {
         method: 'DELETE'
       });
     }
@@ -283,15 +283,15 @@ export const api = {
   // Endpoints para reportes
   reportes: {
     getEstadisticas: async () => {
-      return await request('reportes/estadisticas');
+      return await request('/reportes/estadisticas');
     },
 
     getServiciosPorPeriodo: async (inicio, fin) => {
-      return await request(`reportes/servicios?inicio=${inicio}&fin=${fin}`);
+      return await request(`/reportes/servicios?inicio=${inicio}&fin=${fin}`);
     },
 
     getServiciosPorTecnico: async (tecnicoId) => {
-      return await request(`reportes/tecnicos/${tecnicoId}/servicios`);
+      return await request(`/reportes/tecnicos/${tecnicoId}/servicios`);
     }
   }
 };
