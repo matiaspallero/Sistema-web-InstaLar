@@ -293,5 +293,56 @@ export const api = {
     getServiciosPorTecnico: async (tecnicoId) => {
       return await request(`/reportes/tecnicos/${tecnicoId}/servicios`);
     }
+  },
+
+  //Endpoints para equipos
+  equipos: {
+    getAll: async () => {
+      return await request('/equipos');
+    },
+
+    getById: async (id) => {
+      return await request(`/equipos/${id}`);
+    },
+
+    // Obtener equipos de un cliente
+    getByCliente: async (clienteId) => {
+      return await request(`/equipos/cliente/${clienteId}`);
+    },
+
+    // Obtener equipos de una sede
+    getBySede: async (sedeId) => {
+      return await request(`/equipos/sede/${sedeId}`);
+    },
+
+    // Buscar por serie
+    getBySerie: async (serie) => {
+      return await request(`/equipos/serie/${serie}`);
+    },
+
+    create: async (data) => {
+      console.log('Creando equipo con datos:', data);
+      return await request('/equipos', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    update: async (id, data) => {
+      return await request(`/equipos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      });
+    },
+
+    getHistorial: async (equipoId) => {
+      return await request(`/equipos/${equipoId}/servicios`);
+    },
+
+    delete: async (id) => {
+      return await request(`/equipos/${id}`, {
+        method: 'DELETE'
+      });
+    }
   }
 };

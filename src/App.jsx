@@ -1,9 +1,12 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Contexts
 import { AppProvider, useApp } from './context/AppContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+
+// Hooks
+import Layout from './hooks/Layout';
 
 // Components
 import Sidebar from './components/Sidebar';
@@ -11,6 +14,12 @@ import Navbar from './components/Navbar';
 import Notification from './components/Notification';
 import Loading from './components/Loading';
 import ProtectedRoute from './components/ProtectedRoute';
+
+
+// Páginas relacionadas a los equipos
+import FichaTecnicaEquipo from './pages/equipos-pages/FichaTecnicaEquipo';
+import EditarEquipo from './pages/equipos-pages/EditarEquipo';
+import Equipos from './pages/Equipos';
 
 // Páginas del cliente
 import ClienteDashboard from './pages/clientes-pages/ClienteDashboad';
@@ -56,8 +65,27 @@ const HomeRedirect = () => {
 
 // Layout principal
 const MainLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
+
+  useEffect(() => {
+    // Definimos qué es una pantalla grande (768px o más)
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    
+    // Función que actualiza el estado según si cumple o no la condición
+    const handleMediaChange = (e) => {
+      setSidebarOpen(e.matches); 
+    };
+
+    // Lo ejecutamos inmediatamente al cargar
+    handleMediaChange(mediaQuery);
+
+    // Escuchamos si el usuario gira el teléfono
+    mediaQuery.addEventListener('change', handleMediaChange);
+    
+    // Limpieza
+    return () => mediaQuery.removeEventListener('change', handleMediaChange);
+  }, []);
 
   // Ocultamos Sidebar para clientes (opcional, si quieres que tengan otro menú)
   // O lo dejamos si el Sidebar ya se adapta (que debería).
@@ -139,6 +167,23 @@ function AppContent() {
           <Route path="/misTrabajos" element={
             <ProtectedRoute allowedRoles={['tecnico']}>
               <MisTrabajos />
+            </ProtectedRoute>
+          } />
+
+          {/* Rutas de Equipos (Admin + Técnico) */}
+          <Route path="/equipos" element={
+            <ProtectedRoute allowedRoles={['admin', 'tecnico']}>
+              <Equipos />
+            </ProtectedRoute>
+          } />
+          <Route path="/equipos/:id" element={
+            <ProtectedRoute allowedRoles={['admin', 'tecnico']}>
+              <FichaTecnicaEquipo />
+            </ProtectedRoute>
+          } />
+          <Route path="/equipos/:id/editar" element={
+            <ProtectedRoute allowedRoles={['admin', 'tecnico']}>
+              <EditarEquipo />
             </ProtectedRoute>
           } />
         </Route>

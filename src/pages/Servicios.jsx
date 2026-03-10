@@ -1,9 +1,11 @@
+// PAGINA PRINCIPAL DE SERVICIOS: Aquí se muestra el listado de servicios, con filtros, búsqueda, y opciones para crear/editar/eliminar servicios. También se puede hacer clic en el equipo para ver su ficha técnica (modal o página aparte).
 import { useState, useEffect } from 'react';
 import { FaPlus, FaSearch, FaFilter, FaTimes, FaSave } from 'react-icons/fa';
 import { api } from '../services/api';
 import { useApp } from '../context/AppContext'; // Para notificaciones bonitas
 import Loading from '../components/Loading'; // Componente de carga
 import ServicioCard from '../components/ServicioCard'; // Tu tarjeta de diseño
+import EquipoFicha from '../components/EquipoFicha'; // Modal con ficha técnica completa del equipo
 
 function Servicios() {
   const { mostrarNotificacion } = useApp();
@@ -16,6 +18,7 @@ function Servicios() {
   
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [selectedEquipo, setSelectedEquipo] = useState(null);
   
   // Filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -331,7 +334,7 @@ function Servicios() {
                     value={formData.equipo}
                     onChange={(e) => setFormData({...formData, equipo: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Split 12000 BTU"
+                    placeholder="Split 12000 F"
                   />
                 </div>
                  <div>

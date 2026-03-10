@@ -12,6 +12,7 @@ import {
   FaInbox,
   FaWrench,
   FaTimes,
+  FaBox
 } from 'react-icons/fa';
 
 function Sidebar({ isOpen, onToggle }) {
@@ -48,49 +49,56 @@ function Sidebar({ isOpen, onToggle }) {
       label: 'Clientes', 
       roles: ['admin', 'tecnico']
     },
-    // 5. MIS TRABAJOS (tecnico)
+    // 5. GESTIÓN DE EQUIPOS (admin/tecnico)
+    {
+      path: '/equipos',
+      icon: FaBox,
+      label: 'Equipos',
+      roles: ['admin', 'tecnico']
+    },
+    // 6. MIS TRABAJOS (tecnico)
     {
       path: '/misTrabajos',
       icon: FaWrench,
       label: 'Mis Trabajos',
       roles: ['tecnico']
     },
-    // 6. GESTIÓN DE SERVICIOS (admin/tecnico)
+    // 7. GESTIÓN DE SERVICIOS (admin/tecnico)
     { 
       path: '/servicios', 
       icon: FaTools, 
       label: 'Servicios', 
       roles: ['admin', 'tecnico']
     },
-    // 7. GESTIÓN DE TÉCNICOS (admin)
+    // 8. GESTIÓN DE TÉCNICOS (admin)
     { 
       path: '/tecnicos', 
       icon: FaUserTie, 
       label: 'Técnicos', 
       roles: ['admin']
     },
-    // 8. GESTIÓN DE SEDES (admin)
+    // 9. GESTIÓN DE SEDES (admin)
     { 
       path: '/sedes', 
       icon: FaBuilding, 
       label: 'Sedes', 
       roles: ['admin']
     },
-    // 9. MIS SEDES (cliente)
+    // 10. MIS SEDES (cliente)
     {
       path: '/misSedes', 
       icon: FaBuilding, 
       label: 'Mis Sedes', 
       roles: ['cliente']
     },
-    // 10. CALENDARIO (admin/tecnico)
+    // 11. CALENDARIO (admin/tecnico)
     { 
       path: '/calendario', 
       icon: FaCalendarAlt, 
       label: 'Calendario', 
       roles: ['admin', 'tecnico']
     },
-    // 11. REPORTES GLOBALES (admin)
+    // 12. REPORTES GLOBALES (admin)
     { 
       path: '/reportes', 
       icon: FaChartBar, 
